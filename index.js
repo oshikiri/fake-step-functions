@@ -1,9 +1,20 @@
 'use strict'
 
-const VALID_TYPE = ['Succeed', 'Failed']
+const VALID_STATE_TYPE = [
+  'Pass', 'Task', 'Choice', 'Wait',
+  'Succeed', 'Fail', 'Parallel'
+];
+
+// TODO: Use asl-validator
+const validityStateMachineDefinition = (stateMachine) => {
+  if (!stateMachine.States) throw new Error('States does not exist')
+  const startAt = stateMachine.StartAt;
+  if (!startAt) throw new Error('StartAt does not exist');
+}
 
 class FakeStepFunction {
   constructor(stateMachine, fakeResources) {
+    validityStateMachineDefinition(stateMachine)
     this.stateMachine = stateMachine;
     this.fakeResources = fakeResources;
   };
@@ -11,28 +22,30 @@ class FakeStepFunction {
   run(input) {
     const startAt = this.stateMachine.StartAt;
     if (!startAt) throw new Error(`StartAt does not exist`)
-    return this.runStep(startAt, input);
+    return this.runState(startAt, input);
   };
 
-  runStep(stepName, state) {
-    const step = this.stateMachine.States[stepName];
-    const stepType = step.Type;
+  runState(stateName, data) {
+    const state = this.stateMachine.States[stateName];
+    const stateType = state.Type;
 
-    // console.log(step)
-
-    switch(stepType) {
-      case 'Succeed':
-        return state;
+    switch(stateType) {
       case 'Task':
-        const resourceArn = step.Resource;
+        const resourceArn = state.Resource;
         const resource = this.fakeResources[resourceArn];
-        const input = state[step.InputPath.split('.')[1]];
-        state[step.ResultPath.split('.')[1]] = resource(input);
-        return state;
+        const input = data[state.InputPath.split('.')[1]];
+        data[state.ResultPath.split('.')[1]] = resource(input);
+        return data;
+      case 'Pass':
+      case 'Choice':
+      case 'Wait':
+      case 'Succeed':
+      case 'Fail':
+      case 'Parallel':
+        return data;
       default:
-        throw new Error(`Invalid Type: ${step.Type}`);
+        throw new Error(`Invalid Type: ${state.Type}`);
     }
   }
 };
-
 exports.FakeStepFunction = FakeStepFunction;

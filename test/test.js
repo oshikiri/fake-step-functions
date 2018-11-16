@@ -2,8 +2,17 @@ const expect = require('chai').expect;
 const FakeStepFunction = require('../index').FakeStepFunction;
 
 describe('FakeStepFunction', () => {
-  describe('#run()', () => {
-    context('StartAt does not exist', () => {
+  describe('#constructor()', () => {
+    context('when the state definition does not contain States', () => {
+      it('should throw Error', () => {
+        const stateMachine = {
+          StartAt: 'Start'
+        };
+        expect(() => new FakeStepFunction(stateMachine, {}))
+          .to.throw(Error, 'States does not exist');
+      });
+    });
+    context('when StartAt field does not exist', () => {
       it('should throw an Error', () => {
         const stateMachine = {
           States: {
@@ -12,17 +21,21 @@ describe('FakeStepFunction', () => {
             }
           }
         };
-        
-        const fakeStepFunction = new FakeStepFunction(stateMachine, {});
-        expect(() => fakeStepFunction.run({}))
+        expect(() => new FakeStepFunction(stateMachine, {}))
           .to.throw(Error, 'StartAt does not exist');
       });
     });
 
-    context('a minimal example with Type: Fail', () => {
-      it('should throw an Error');
+    context('when the specified StartAt field does not exist', () => {
+      it('should throw an Error')
     });
 
+    context('when there is a state which have no "Type" field', () => {
+      it('should throw an Error')
+    });
+  });
+  
+  describe('#run()', () => {
     it('should pass the input to fakeResource and fill the result to ResultPath', () => {
       const stateMachine = {
         StartAt: "Add",
@@ -36,20 +49,17 @@ describe('FakeStepFunction', () => {
           }
         }
       };
-      const input = {
-        title: "Numbers to add",
-        numbers: { val1: 3, val2: 4 }
-      };
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': (numbers) => {
           return numbers.val1 + numbers.val2;
         },
       };
-
       const fakeStepFunction = new FakeStepFunction(stateMachine, fakeResources);
-      const result = fakeStepFunction.run(input);
 
-      expect(result).to.deep.equal({
+      expect(fakeStepFunction.run({
+        title: "Numbers to add",
+        numbers: { val1: 3, val2: 4 }
+      })).to.deep.equal({
         title: "Numbers to add",
         numbers: { val1: 3, val2: 4 },
         sum: 7
@@ -66,8 +76,8 @@ describe('FakeStepFunction', () => {
             }
           }
         };
-        
         const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+
         expect(() => fakeStepFunction.run({}))
           .to.throw(Error, 'Invalid Type: UnknownType');
       });
@@ -81,29 +91,70 @@ describe('FakeStepFunction', () => {
     });
   });
 
-  describe('#runStep', () => {
-    context('when the step contains "End = true"', () => {
+  describe('#runState()', () => {
+    context('when the state contains "End = true"', () => {
       it('returns the state with results and "End" flag');
     });
-    context('when the step contains "Next" field', () => {
+
+    context('when the state contains "Next" field', () => {
       it('returns the state with results and "Next" destination');
     });
-    context('when the step has `"Type": "Succeed"`', () => {
+
+    context('when the state has `"Type": "Succeed"`', () => {
       it('does not change the state and returns it', () => {
         const stateMachine = {
-          "States": {
-            "Done": {
+          StartAt: 'Start',
+          States: {
+            "Target": {
               "Type": "Succeed"
             }
           }
         };
         const fakeStepFunction = new FakeStepFunction(stateMachine, {});
-        const result = fakeStepFunction.runStep('Done', { sum: 7 });
   
-        expect(result).to.deep.equal({ sum: 7 });
+        expect(
+          fakeStepFunction.runState('Target', { sum: 7 })
+        ).to.deep.equal({ sum: 7 });
       });
     });
-    context('when the InputPath points a path like $.a.b', () => {
+    context('when the state has `"Type": "Fail"`', () => {
+      it('does not change the state and returns it', () => {
+        const stateMachine = {
+          StartAt: 'Start',
+          "States": {
+            "Target": {
+              "Type": "Fail"
+            }
+          }
+        };
+        const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+  
+        expect(
+          fakeStepFunction.runState('Target', { sum: 7 })
+        ).to.deep.equal({ sum: 7 });
+      });
+    });
+    context('when the state has `"Type": "Choice"`', () => {
+      it('should select expected state as a next state');
+    });
+
+    context('when the state has `"Type": "Pass"`', () => {
+      it('should fill outputPath');
+    });
+
+    context('when the Task state is called without InputPath', () => {
+      it('should pass $ to the Resource')
+    })
+
+    context('when the state has `"End": true`', () => {
+      it('should turn on the end flag');
+    });
+
+    context('when the state, that is non-terminal state, does not contain "Next" field', () => {
+      it('should throw an error');
+    })
+
+    context('when the InputPath points a path like $.a.b3.c2', () => {
       it('should parse the InputPath correctly');
     });
   });

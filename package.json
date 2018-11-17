@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "test": "mocha",
-    "eslint": "./node_modules/.bin/eslint --fix *.js"
+    "eslint": "./node_modules/.bin/eslint --fix *.js test/*.js"
   },
   "dependencies": {
     "jsonpath": "^1.0.0"

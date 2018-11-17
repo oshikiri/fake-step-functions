@@ -78,11 +78,47 @@ describe('FakeStateMachine', () => {
 
   describe('#runState()', () => {
     context('when the state has `"End": true`', () => {
-      it('should be marked as a terminal state');
+      it('should be marked as a terminal state', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Target: {
+              Input: 'a',
+              ResultPath: '$.a2',
+              Type: 'Pass',
+              End: true
+            }
+          }
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(
+          fakeStateMachine.runState('Target', {
+            a1: 123
+          }).isTerminalState
+        ).to.be.true;
+      });
     });
 
     context('when the state contains "Next" field', () => {
-      it('should return the state with results and "Next" destination');
+      it('should return the state with results and "Next" destination', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Target: {
+              Input: 'a',
+              ResultPath: '$.a2',
+              Type: 'Pass',
+              Next: 'NextState'
+            }
+          }
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(
+          fakeStateMachine.runState('Target', {
+            a1: 123
+          }).nextStateName
+        ).to.equal('NextState');
+      });
     });
 
     context('when the state does not contain "Next" field and does not have `"End": true`', () => {

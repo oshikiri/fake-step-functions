@@ -77,6 +77,24 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runState()', () => {
+    context('when the specified stateName does not exists', () => {
+      it('should throw an Error', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Target2: {
+              Input: 'a',
+              ResultPath: '$.a2',
+              Type: 'Pass'
+            }
+          }
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(() => fakeStateMachine.runState('Target', {
+          a1: 123
+        })).to.throw(Error, 'the state Target does not exists');
+      });
+    });
     context('when the state has `"End": true`', () => {
       it('should be marked as a terminal state', () => {
         const definition = {

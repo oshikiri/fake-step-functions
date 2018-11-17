@@ -19,6 +19,8 @@ class FakeStateMachine {
 
   runState(stateName, _data) {
     const state = this.definition.States[stateName];
+    if (state === undefined) throw new Error(`the state ${stateName} does not exists`);
+
     const stateType = state.Type;
     const data = Object.assign({}, _data);
     const nextState = state.Next || null;

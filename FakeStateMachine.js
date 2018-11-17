@@ -14,7 +14,13 @@ class FakeStateMachine {
     if (startAt === undefined) {
       throw new Error('StartAt does not exist');
     }
-    return this.runState(startAt, input);
+    return this.runStateLoop(startAt, input);
+  }
+
+  runStateLoop(stateName, data) {
+    const result = this.runState(stateName, data);
+    if (result.isTerminalState) return result;
+    return this.runStateLoop(result.nextStateName, result.data);
   }
 
   runState(stateName, _data) {

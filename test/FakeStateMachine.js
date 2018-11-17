@@ -67,8 +67,42 @@ describe('FakeStateMachine', () => {
           .to.throw(Error, 'Invalid Type: UnknownType');
       });
     });
-    context('when the state machine calls the same task twice', () => {
-      it('should return the result successfully');
+    context('when the state machine has two states', () => {
+      it('should return the result successfully', () => {
+        const definition = {
+          StartAt: 'Add1',
+          States: {
+            Add1: {
+              Type: 'Task',
+              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
+              InputPath: '$.numbers',
+              ResultPath: '$.sum1',
+              Next: 'Add2'
+            },
+            Add2: {
+              Type: 'Task',
+              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
+              InputPath: '$.numbers',
+              ResultPath: '$.sum2',
+              End: true
+            }
+          }
+        };
+        const fakeResources = {
+          'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+
+        expect(fakeStateMachine.run({
+          title: 'Numbers to add',
+          numbers: { val1: 3, val2: 4 }
+        })).to.deep.equal(new RunStateResult({
+          title: 'Numbers to add',
+          numbers: { val1: 3, val2: 4 },
+          sum1: 7,
+          sum2: 7,
+        }, 'Task', null, true));
+      });
     });
 
     context('when state machine contains a loop with break', () => {

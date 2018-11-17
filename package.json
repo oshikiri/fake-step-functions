@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/oshikiri/FakeStepFunction"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "test": "mocha",
     "eslint": "./node_modules/.bin/eslint --fix *.js test/*.js"

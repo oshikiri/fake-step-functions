@@ -76,8 +76,16 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runState()', () => {
+    context('when the state has `"End": true`', () => {
+      it('should be marked as a terminal state');
+    });
+
     context('when the state contains "Next" field', () => {
       it('should return the state with results and "Next" destination');
+    });
+
+    context('when the state does not contain "Next" field and does not have `"End": true`', () => {
+      it('should throw an error');
     });
 
     context('when the state has `"Type": "Succeed"`', () => {
@@ -264,14 +272,6 @@ describe('FakeStateMachine', () => {
       context('when the Task state is called with Input', () => {
         it('should pass the Input to the Resource');
       });
-    });
-
-    context('when the state has `"End": true`', () => {
-      it('should turn on the end flag');
-    });
-
-    context('when the state, that is non-terminal state, does not contain "Next" field', () => {
-      it('should throw an error');
     });
   });
 });

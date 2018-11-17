@@ -1,8 +1,9 @@
+'use strict'
 const jsonpath = require('jsonpath');
 const expect = require('chai').expect;
 
 describe('jsonpath', () => {
-  describe('#query()', () => {
+  describe('#value()', () => {
     it('should return the path', () => {
       const data = {
         "foo": 123,
@@ -11,10 +12,25 @@ describe('jsonpath', () => {
             "cdr": true
         }
       };
-      expect(jsonpath.query(data, '$.foo')).to.deep.equal([ 123 ]);
-      expect(jsonpath.query(data, '$.bar')).to.deep.equal([['a', 'b', 'c']]);
-      expect(jsonpath.query(data, '$.car.cdr')).to.deep.equal([ true ]);
+      expect(jsonpath.value(data, '$.foo')).to.deep.equal(123);
+      expect(jsonpath.value(data, '$.bar')).to.deep.equal(['a', 'b', 'c']);
+      expect(jsonpath.value(data, '$.car.cdr')).to.deep.equal(true);
     });
-    it('should query using range (e.g. $.a[0..1])')
+    it('should assign the value to the specified path)', () => {
+      const data = {
+        car: {
+          cdr: true
+        }
+      };
+      const result = jsonpath.value(data, '$.car.foo', 123);
+      expect(result).to.equal(123);
+      expect(data).to.deep.equal({
+        car: {
+          cdr: true,
+          foo: 123
+        }
+      })
+    });
+    it('should query using range (e.g. $.a[0..1])');
   });
 });

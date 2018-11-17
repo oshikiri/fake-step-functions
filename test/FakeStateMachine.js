@@ -76,10 +76,6 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runState()', () => {
-    context('when the state contains "End = true"', () => {
-      it('should return the state with results and "End" flag');
-    });
-
     context('when the state contains "Next" field', () => {
       it('should return the state with results and "Next" destination');
     });

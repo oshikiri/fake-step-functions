@@ -1,10 +1,10 @@
 {
-  "name": "fake-step-function",
+  "name": "fake-step-functions",
   "version": "0.0.1",
   "author": "Takamasa Oshikiri <mail@oshikiri.org>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/oshikiri/FakeStepFunction"
+    "url": "https://github.com/oshikiri/FakeStepFunctions"
   },
   "license": "Apache-2.0",
   "scripts": {

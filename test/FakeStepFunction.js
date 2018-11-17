@@ -139,7 +139,82 @@ describe('FakeStepFunction', () => {
     });
 
     context('when the state has `"Type": "Pass"`', () => {
-      it('should fill outputPath');
+      context('when there is an Input field', () => {
+        it('should fill outputPath using Input field', () => {
+          const stateMachine = {
+            StartAt: 'Start',
+            "States": {
+              "Target": {
+                Input: 'a',
+                ResultPath: '$.a2',
+                Type: 'Pass'
+              }
+            }
+          };
+          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          expect(
+            fakeStepFunction.runState('Target', {
+              a1: 123
+            })
+          ).to.deep.equal({
+            a1: 123,
+            a2: 'a'
+          });
+        });
+      });
+      context('when there is an InputPath field', () => {
+        it('should fill outputPath using InputPath field', () => {
+          const stateMachine = {
+            StartAt: 'Start',
+            "States": {
+              "Target": {
+                InputPath: '$.a1',
+                ResultPath: '$.a2',
+                Type: 'Pass'
+              }
+            }
+          };
+          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          expect(
+            fakeStepFunction.runState('Target', {
+              a1: 123
+            })
+          ).to.deep.equal({
+            a1: 123,
+            a2: 123
+          });
+        });
+      });
+      context('when the InputPath points a path like $.a.b3.c2', () => {
+        it('should parse the InputPath correctly', () => {
+          const stateMachine = {
+            StartAt: 'Start',
+            "States": {
+              "Target": {
+                InputPath: '$.a.b2.c1',
+                ResultPath: '$.a.b3.c2',
+                Type: 'Pass'
+              }
+            }
+          };
+          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          expect(
+            fakeStepFunction.runState('Target', {
+              a: {
+                b1: 'a-b1',
+                b2: { c1: 'a-b2-c1' },
+                b3: { c1: 'a-b3-c1' }
+              }
+            })
+          ).to.deep.equal({
+            a: {
+              b1: 'a-b1',
+              b2: { c1: 'a-b2-c1' },
+              b3: { c1: 'a-b3-c1', c2: 'a-b2-c1' }
+            }
+          });
+        });
+      });
     });
 
     context('when the Task state is called without InputPath', () => {
@@ -153,9 +228,5 @@ describe('FakeStepFunction', () => {
     context('when the state, that is non-terminal state, does not contain "Next" field', () => {
       it('should throw an error');
     })
-
-    context('when the InputPath points a path like $.a.b3.c2', () => {
-      it('should parse the InputPath correctly');
-    });
   });
 });

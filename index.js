@@ -1,5 +1,7 @@
 'use strict'
 
+const jsonpath = require('jsonpath');
+
 const VALID_STATE_TYPE = [
   'Pass', 'Task', 'Choice', 'Wait',
   'Succeed', 'Fail', 'Parallel'
@@ -37,6 +39,10 @@ class FakeStepFunction {
         data[state.ResultPath.split('.')[1]] = resource(input);
         return data;
       case 'Pass':
+        const dataInputPath = state.InputPath ? jsonpath.value(data, state.InputPath) : null;
+        const newValue = state.Input || dataInputPath; // TODO: priority?
+        jsonpath.value(data, state.ResultPath, newValue);
+        return data;
       case 'Choice':
       case 'Wait':
       case 'Succeed':

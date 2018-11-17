@@ -1,4 +1,6 @@
-'use strict'
+/* eslint-env mocha */
+'use strict';
+
 const jsonpath = require('jsonpath');
 const expect = require('chai').expect;
 

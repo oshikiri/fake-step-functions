@@ -1,3 +1,6 @@
+/* eslint-env mocha */
+'use strict';
+
 const expect = require('chai').expect;
 const FakeStepFunction = require('../index').FakeStepFunction;
 

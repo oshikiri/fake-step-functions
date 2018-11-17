@@ -1,48 +1,47 @@
-'use strict'
+'use strict';
 
 const jsonpath = require('jsonpath');
 
-const VALID_STATE_TYPE = [
-  'Pass', 'Task', 'Choice', 'Wait',
-  'Succeed', 'Fail', 'Parallel'
-];
 
 // TODO: Use asl-validator
 const validityStateMachineDefinition = (stateMachine) => {
-  if (!stateMachine.States) throw new Error('States does not exist')
+  if (!stateMachine.States) throw new Error('States does not exist');
   const startAt = stateMachine.StartAt;
   if (!startAt) throw new Error('StartAt does not exist');
-}
+};
 
 class FakeStepFunction {
   constructor(stateMachine, fakeResources) {
-    validityStateMachineDefinition(stateMachine)
+    validityStateMachineDefinition(stateMachine);
     this.stateMachine = stateMachine;
     this.fakeResources = fakeResources;
-  };
+  }
 
   run(input) {
     const startAt = this.stateMachine.StartAt;
-    if (!startAt) throw new Error(`StartAt does not exist`)
+    if (!startAt) throw new Error('StartAt does not exist');
     return this.runState(startAt, input);
-  };
+  }
 
   runState(stateName, data) {
     const state = this.stateMachine.States[stateName];
     const stateType = state.Type;
+    const newData = data;
 
-    switch(stateType) {
-      case 'Task':
+    switch (stateType) {
+      case 'Task': {
         const resourceArn = state.Resource;
         const resource = this.fakeResources[resourceArn];
         const input = data[state.InputPath.split('.')[1]];
-        data[state.ResultPath.split('.')[1]] = resource(input);
-        return data;
-      case 'Pass':
+        newData[state.ResultPath.split('.')[1]] = resource(input);
+        return newData;
+      }
+      case 'Pass': {
         const dataInputPath = state.InputPath ? jsonpath.value(data, state.InputPath) : null;
         const newValue = state.Input || dataInputPath; // TODO: priority?
         jsonpath.value(data, state.ResultPath, newValue);
         return data;
+      }
       case 'Choice':
       case 'Wait':
       case 'Succeed':
@@ -53,5 +52,5 @@ class FakeStepFunction {
         throw new Error(`Invalid Type: ${stateType}`);
     }
   }
-};
+}
 exports.FakeStepFunction = FakeStepFunction;

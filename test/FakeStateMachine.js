@@ -122,7 +122,22 @@ describe('FakeStateMachine', () => {
     });
 
     context('when the state does not contain "Next" field and does not have `"End": true`', () => {
-      it('should throw an error');
+      it('should throw an error', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Target: {
+              Input: 'a',
+              ResultPath: '$.a2',
+              Type: 'Pass'
+            }
+          }
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(() => fakeStateMachine.runState('Target', {
+          a1: 123
+        })).to.throw(Error, 'nextState must be non-null when the state is non-terminal state');
+      });
     });
 
     context('when the state has `"Type": "Succeed"`', () => {

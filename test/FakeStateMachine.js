@@ -106,7 +106,43 @@ describe('FakeStateMachine', () => {
     });
 
     context('when state machine contains a loop with break', () => {
-      it('should return the result successfully');
+      it('should return the result successfully', () => {
+        const definition = {
+          StartAt: 'IncrementOrEnd',
+          States: {
+            IncrementOrEnd: {
+              Type: 'Choice',
+              Choices: [
+                {
+                  Variable: '$.i',
+                  NumericEquals: 3,
+                  Next: 'Done',
+                }
+              ],
+              Default: 'Increment',
+            },
+            Increment: {
+              Type: 'Task',
+              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Increment',
+              InputPath: '$.i',
+              ResultPath: '$.i',
+              Next: 'IncrementOrEnd'
+            },
+            Done: {
+              Type: 'Succeed',
+            }
+          }
+        };
+        const fakeResources = {
+          'arn:aws:lambda:us-east-1:123456789012:function:Increment': i => i + 1,
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+        expect(fakeStateMachine.run({
+          i: 0
+        })).to.deep.equal(new RunStateResult({
+          i: 3
+        }, 'Succeed', null, true));
+      });
     });
   });
 

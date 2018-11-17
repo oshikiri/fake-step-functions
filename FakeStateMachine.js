@@ -64,10 +64,12 @@ class FakeStateMachine {
       case 'Choice': {
         const choice0 = state.Choices[0];
         const input = jsonpath.value(data, choice0.Variable);
-        if (input === choice0.BooleanEquals) {
+        if (
+          (choice0.BooleanEquals && input === choice0.BooleanEquals)
+          || (choice0.NumericEquals && input === choice0.NumericEquals)) {
           nextState = choice0.Next;
         } else {
-          nextState = state.default;
+          nextState = state.Default;
         }
         break;
       }

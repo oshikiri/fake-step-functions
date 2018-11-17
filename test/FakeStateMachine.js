@@ -6,16 +6,7 @@ const expect = require('chai').expect;
 const FakeStateMachine = require('../index').FakeStateMachine;
 
 describe('FakeStateMachine', () => {
-  describe('#constructor()', () => {
-    context('when the state definition does not contain States', () => {
-      it('should throw Error', () => {
-        const definition = {
-          StartAt: 'Start'
-        };
-        expect(() => new FakeStateMachine(definition, {}))
-          .to.throw(Error, 'States does not exist');
-      });
-    });
+  describe('#run()', () => {
     context('when StartAt field does not exist', () => {
       it('should throw an Error', () => {
         const definition = {
@@ -25,21 +16,12 @@ describe('FakeStateMachine', () => {
             }
           }
         };
-        expect(() => new FakeStateMachine(definition, {}))
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(() => fakeStateMachine.run({}))
           .to.throw(Error, 'StartAt does not exist');
       });
     });
 
-    context('when the specified StartAt field does not exist', () => {
-      it('should throw an Error');
-    });
-
-    context('when there is a state which have no "Type" field', () => {
-      it('should throw an Error');
-    });
-  });
-
-  describe('#run()', () => {
     it('should pass the input to fakeResource and fill the result to ResultPath', () => {
       const definition = {
         StartAt: 'Add',

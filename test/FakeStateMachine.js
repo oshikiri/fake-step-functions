@@ -50,8 +50,8 @@ describe('FakeStateMachine', () => {
       });
     });
 
-    context('If there is invalid Type String', () => {
-      it('throws an Error', () => {
+    context('when there is invalid Type String', () => {
+      it('should throw an Error', () => {
         const definition = {
           StartAt: 'Done',
           States: {
@@ -67,25 +67,25 @@ describe('FakeStateMachine', () => {
       });
     });
     context('when the state machine calls the same task twice', () => {
-      it('should returns the result successfully');
+      it('should return the result successfully');
     });
 
-    context('state machine contains a loop with break', () => {
+    context('when state machine contains a loop with break', () => {
       it('should return the result successfully');
     });
   });
 
   describe('#runState()', () => {
     context('when the state contains "End = true"', () => {
-      it('returns the state with results and "End" flag');
+      it('should return the state with results and "End" flag');
     });
 
     context('when the state contains "Next" field', () => {
-      it('returns the state with results and "Next" destination');
+      it('should return the state with results and "Next" destination');
     });
 
     context('when the state has `"Type": "Succeed"`', () => {
-      it('does not change the state and returns it', () => {
+      it('should not change the state and return it', () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -102,7 +102,7 @@ describe('FakeStateMachine', () => {
       });
     });
     context('when the state has `"Type": "Fail"`', () => {
-      it('does not change the state and returns it', () => {
+      it('should not change the state and return it', () => {
         const definition = {
           StartAt: 'Start',
           States: {

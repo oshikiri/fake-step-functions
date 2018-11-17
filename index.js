@@ -50,7 +50,7 @@ class FakeStepFunction {
       case 'Parallel':
         return data;
       default:
-        throw new Error(`Invalid Type: ${state.Type}`);
+        throw new Error(`Invalid Type: ${stateType}`);
     }
   }
 };

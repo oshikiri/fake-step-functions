@@ -45,6 +45,7 @@ class FakeStateMachine {
         dataInputPath = jsonpath.value(data, state.InputPath);
       }
     }
+    if (state.Result !== undefined) dataInputPath = state.Result; // TODO: priority?
 
     switch (stateType) {
       case 'Task': {

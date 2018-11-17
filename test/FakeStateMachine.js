@@ -344,6 +344,30 @@ describe('FakeStateMachine', () => {
             }, 'Pass', 'NextState', false));
           });
         });
+        context('when the state contains Result', () => {
+          it('should fill the content of Result to ResultPath', () => {
+            const definition = {
+              StartAt: 'Start',
+              States: {
+                Target: {
+                  Result: 'a',
+                  ResultPath: '$.a2',
+                  Type: 'Pass',
+                  Next: 'NextState'
+                }
+              }
+            };
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Target', {
+                a1: 123
+              })
+            ).to.deep.equal(new RunStateResult({
+              a1: 123,
+              a2: 'a'
+            }, 'Pass', 'NextState', false));
+          });
+        });
         context('when the InputPath is null', () => {
           it('should fill outputPath using {}', () => {
             const definition = {

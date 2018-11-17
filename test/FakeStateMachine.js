@@ -257,7 +257,27 @@ describe('FakeStateMachine', () => {
       });
       context('when the state has an InputPath field', () => {
         context('when the InputPath is undefined', () => {
-          it('should fill outputPath using the whole data ($)');
+          it('should fill outputPath using the whole data (i.e. $)', () => {
+            const definition = {
+              StartAt: 'Start',
+              States: {
+                Target: {
+                  ResultPath: '$.a2',
+                  Type: 'Pass',
+                  Next: 'NextState'
+                }
+              }
+            };
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Target', {
+                a1: 123
+              })
+            ).to.deep.equal(new RunStateResult({
+              a1: 123,
+              a2: { a1: 123 }
+            }, 'Pass', 'NextState', false));
+          });
         });
         context('when the InputPath is null', () => {
           it('should fill outputPath using {}', () => {

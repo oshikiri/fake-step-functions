@@ -43,7 +43,7 @@ class FakeStateMachine {
         let dataInputPath;
         switch (state.InputPath) {
           case undefined: {
-            dataInputPath = null;
+            dataInputPath = Object.assign({}, _data);
             break;
           }
           case null: {

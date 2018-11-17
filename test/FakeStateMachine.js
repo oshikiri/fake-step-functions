@@ -460,5 +460,11 @@ describe('FakeStateMachine', () => {
         it('should pass the Input to the Resource');
       });
     });
+    context('when the state has `"Type": "Wait"`', () => {
+      it('pending');
+    });
+    context('when the state has `"Type": "Parallel"`', () => {
+      it('pending');
+    });
   });
 });

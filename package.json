@@ -8,7 +8,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "eslint": "./node_modules/.bin/eslint --fix *.js"
+  },
   "dependencies": {
     "jsonpath": "^1.0.0"
   },

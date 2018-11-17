@@ -3,29 +3,29 @@
 'use strict';
 
 const expect = require('chai').expect;
-const FakeStepFunction = require('../index').FakeStepFunction;
+const FakeStateMachine = require('../index').FakeStateMachine;
 
-describe('FakeStepFunction', () => {
+describe('FakeStateMachine', () => {
   describe('#constructor()', () => {
     context('when the state definition does not contain States', () => {
       it('should throw Error', () => {
-        const stateMachine = {
+        const definition = {
           StartAt: 'Start'
         };
-        expect(() => new FakeStepFunction(stateMachine, {}))
+        expect(() => new FakeStateMachine(definition, {}))
           .to.throw(Error, 'States does not exist');
       });
     });
     context('when StartAt field does not exist', () => {
       it('should throw an Error', () => {
-        const stateMachine = {
+        const definition = {
           States: {
             Done: {
               Type: 'Succeed'
             }
           }
         };
-        expect(() => new FakeStepFunction(stateMachine, {}))
+        expect(() => new FakeStateMachine(definition, {}))
           .to.throw(Error, 'StartAt does not exist');
       });
     });
@@ -41,7 +41,7 @@ describe('FakeStepFunction', () => {
 
   describe('#run()', () => {
     it('should pass the input to fakeResource and fill the result to ResultPath', () => {
-      const stateMachine = {
+      const definition = {
         StartAt: 'Add',
         States: {
           Add: {
@@ -56,9 +56,9 @@ describe('FakeStepFunction', () => {
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
       };
-      const fakeStepFunction = new FakeStepFunction(stateMachine, fakeResources);
+      const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
-      expect(fakeStepFunction.run({
+      expect(fakeStateMachine.run({
         title: 'Numbers to add',
         numbers: { val1: 3, val2: 4 }
       })).to.deep.equal({
@@ -70,7 +70,7 @@ describe('FakeStepFunction', () => {
 
     context('If there is invalid Type String', () => {
       it('throws an Error', () => {
-        const stateMachine = {
+        const definition = {
           StartAt: 'Done',
           States: {
             Done: {
@@ -78,9 +78,9 @@ describe('FakeStepFunction', () => {
             }
           }
         };
-        const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+        const fakeStateMachine = new FakeStateMachine(definition, {});
 
-        expect(() => fakeStepFunction.run({}))
+        expect(() => fakeStateMachine.run({}))
           .to.throw(Error, 'Invalid Type: UnknownType');
       });
     });
@@ -104,7 +104,7 @@ describe('FakeStepFunction', () => {
 
     context('when the state has `"Type": "Succeed"`', () => {
       it('does not change the state and returns it', () => {
-        const stateMachine = {
+        const definition = {
           StartAt: 'Start',
           States: {
             Target: {
@@ -112,16 +112,16 @@ describe('FakeStepFunction', () => {
             }
           }
         };
-        const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+        const fakeStateMachine = new FakeStateMachine(definition, {});
 
         expect(
-          fakeStepFunction.runState('Target', { sum: 7 })
+          fakeStateMachine.runState('Target', { sum: 7 })
         ).to.deep.equal({ sum: 7 });
       });
     });
     context('when the state has `"Type": "Fail"`', () => {
       it('does not change the state and returns it', () => {
-        const stateMachine = {
+        const definition = {
           StartAt: 'Start',
           States: {
             Target: {
@@ -129,10 +129,10 @@ describe('FakeStepFunction', () => {
             }
           }
         };
-        const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+        const fakeStateMachine = new FakeStateMachine(definition, {});
 
         expect(
-          fakeStepFunction.runState('Target', { sum: 7 })
+          fakeStateMachine.runState('Target', { sum: 7 })
         ).to.deep.equal({ sum: 7 });
       });
     });
@@ -143,7 +143,7 @@ describe('FakeStepFunction', () => {
     context('when the state has `"Type": "Pass"`', () => {
       context('when there is an Input field', () => {
         it('should fill outputPath using Input field', () => {
-          const stateMachine = {
+          const definition = {
             StartAt: 'Start',
             States: {
               Target: {
@@ -153,9 +153,9 @@ describe('FakeStepFunction', () => {
               }
             }
           };
-          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            fakeStepFunction.runState('Target', {
+            fakeStateMachine.runState('Target', {
               a1: 123
             })
           ).to.deep.equal({
@@ -166,7 +166,7 @@ describe('FakeStepFunction', () => {
       });
       context('when there is an InputPath field', () => {
         it('should fill outputPath using InputPath field', () => {
-          const stateMachine = {
+          const definition = {
             StartAt: 'Start',
             States: {
               Target: {
@@ -176,9 +176,9 @@ describe('FakeStepFunction', () => {
               }
             }
           };
-          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            fakeStepFunction.runState('Target', {
+            fakeStateMachine.runState('Target', {
               a1: 123
             })
           ).to.deep.equal({
@@ -189,7 +189,7 @@ describe('FakeStepFunction', () => {
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {
         it('should parse the InputPath correctly', () => {
-          const stateMachine = {
+          const definition = {
             StartAt: 'Start',
             States: {
               Target: {
@@ -199,9 +199,9 @@ describe('FakeStepFunction', () => {
               }
             }
           };
-          const fakeStepFunction = new FakeStepFunction(stateMachine, {});
+          const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            fakeStepFunction.runState('Target', {
+            fakeStateMachine.runState('Target', {
               a: {
                 b1: 'a-b1',
                 b2: { c1: 'a-b2-c1' },

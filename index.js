@@ -4,27 +4,27 @@ const jsonpath = require('jsonpath');
 
 
 // TODO: Use asl-validator
-const validityStateMachineDefinition = (stateMachine) => {
-  if (!stateMachine.States) throw new Error('States does not exist');
-  const startAt = stateMachine.StartAt;
+const validityStateMachineDefinition = (definition) => {
+  if (!definition.States) throw new Error('States does not exist');
+  const startAt = definition.StartAt;
   if (!startAt) throw new Error('StartAt does not exist');
 };
 
-class FakeStepFunction {
-  constructor(stateMachine, fakeResources) {
-    validityStateMachineDefinition(stateMachine);
-    this.stateMachine = stateMachine;
+class FakeStateMachine {
+  constructor(definition, fakeResources) {
+    validityStateMachineDefinition(definition);
+    this.definition = definition;
     this.fakeResources = fakeResources;
   }
 
   run(input) {
-    const startAt = this.stateMachine.StartAt;
+    const startAt = this.definition.StartAt;
     if (!startAt) throw new Error('StartAt does not exist');
     return this.runState(startAt, input);
   }
 
   runState(stateName, data) {
-    const state = this.stateMachine.States[stateName];
+    const state = this.definition.States[stateName];
     const stateType = state.Type;
     const newData = data;
 
@@ -53,4 +53,4 @@ class FakeStepFunction {
     }
   }
 }
-exports.FakeStepFunction = FakeStepFunction;
+exports.FakeStateMachine = FakeStateMachine;

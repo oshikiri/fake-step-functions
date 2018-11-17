@@ -17,10 +17,10 @@ class FakeStateMachine {
     return this.runState(startAt, input);
   }
 
-  runState(stateName, data) {
+  runState(stateName, _data) {
     const state = this.definition.States[stateName];
     const stateType = state.Type;
-    const newData = data;
+    const data = Object.assign({}, _data);
 
     switch (stateType) {
       case 'Task': {
@@ -28,7 +28,7 @@ class FakeStateMachine {
         const resource = this.fakeResources[resourceArn];
         const input = jsonpath.value(data, state.InputPath);
         jsonpath.value(data, state.ResultPath, resource(input));
-        return newData;
+        return data;
       }
       case 'Pass': {
         const dataInputPath = state.InputPath ? jsonpath.value(data, state.InputPath) : null;

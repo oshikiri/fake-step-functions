@@ -227,7 +227,36 @@ describe('FakeStateMachine', () => {
       });
     });
     context('when the state has `"Type": "Choice"`', () => {
-      it('should select expected state as a next state');
+      context('when Choices contains only one element and with BooleanEquals', () => {
+        it('should select expected state as a next state', () => {
+          const definition = {
+            States: {
+              Choices: {
+                Type: 'Choice',
+                Choices: [
+                  {
+                    Variable: '$.condition',
+                    BooleanEquals: true,
+                    Next: 'NextState',
+                  }
+                ],
+                Default: 'DefaultState'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            fakeStateMachine.runState('Choices', {
+              condition: true
+            })
+          ).to.deep.equal(new RunStateResult({
+            condition: true
+          }, 'Choice', 'NextState', false));
+        });
+      });
+      context('when Choices contains more than two element', () => {
+        it('should select the expected state as a next state');
+      });
     });
 
     context('when the state has `"Type": "Pass"`', () => {

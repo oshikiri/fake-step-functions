@@ -29,7 +29,7 @@ class FakeStateMachine {
 
     const stateType = state.Type;
     const data = Object.assign({}, _data);
-    const nextState = state.Next || null;
+    let nextState = state.Next || null;
 
     switch (stateType) {
       case 'Task': {
@@ -61,7 +61,16 @@ class FakeStateMachine {
       case 'Succeed':
       case 'Fail':
         break;
-      case 'Choice':
+      case 'Choice': {
+        const choice0 = state.Choices[0];
+        const input = jsonpath.value(data, choice0.Variable);
+        if (input === choice0.BooleanEquals) {
+          nextState = choice0.Next;
+        } else {
+          nextState = state.default;
+        }
+        break;
+      }
       case 'Wait':
       case 'Parallel':
         break;

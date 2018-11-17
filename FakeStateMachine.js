@@ -1,7 +1,7 @@
 'use strict';
 
 const jsonpath = require('jsonpath');
-
+const RunStateResult = require('./RunStateResult').RunStateResult;
 
 class FakeStateMachine {
   constructor(definition, fakeResources) {
@@ -21,6 +21,7 @@ class FakeStateMachine {
     const state = this.definition.States[stateName];
     const stateType = state.Type;
     const data = Object.assign({}, _data);
+    const nextState = state.Next || null;
 
     switch (stateType) {
       case 'Task': {
@@ -28,23 +29,27 @@ class FakeStateMachine {
         const resource = this.fakeResources[resourceArn];
         const input = jsonpath.value(data, state.InputPath);
         jsonpath.value(data, state.ResultPath, resource(input));
-        return data;
+        break;
       }
       case 'Pass': {
         const dataInputPath = state.InputPath ? jsonpath.value(data, state.InputPath) : null;
         const newValue = state.Input || dataInputPath; // TODO: priority?
         jsonpath.value(data, state.ResultPath, newValue);
-        return data;
+        break;
       }
-      case 'Choice':
-      case 'Wait':
       case 'Succeed':
       case 'Fail':
+        break;
+      case 'Choice':
+      case 'Wait':
       case 'Parallel':
-        return data;
+        break;
       default:
         throw new Error(`Invalid Type: ${stateType}`);
     }
+    const isTermialState = state.End === true || stateType === 'Succeed' || stateType === 'Fail';
+    const runStateResult = new RunStateResult(data, stateType, nextState, isTermialState);
+    return runStateResult;
   }
 }
 exports.FakeStateMachine = FakeStateMachine;

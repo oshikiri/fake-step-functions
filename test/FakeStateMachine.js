@@ -4,6 +4,7 @@
 
 const expect = require('chai').expect;
 const FakeStateMachine = require('../FakeStateMachine').FakeStateMachine;
+const RunStateResult = require('../RunStateResult').RunStateResult;
 
 describe('FakeStateMachine', () => {
   describe('#run()', () => {
@@ -43,11 +44,11 @@ describe('FakeStateMachine', () => {
       expect(fakeStateMachine.run({
         title: 'Numbers to add',
         numbers: { val1: 3, val2: 4 }
-      })).to.deep.equal({
+      })).to.deep.equal(new RunStateResult({
         title: 'Numbers to add',
         numbers: { val1: 3, val2: 4 },
         sum: 7
-      });
+      }, 'Task', null, true));
     });
 
     context('when there is invalid Type String', () => {
@@ -102,7 +103,7 @@ describe('FakeStateMachine', () => {
 
         expect(
           fakeStateMachine.runState('Target', { sum: 7 })
-        ).to.deep.equal({ sum: 7 });
+        ).to.deep.equal(new RunStateResult({ sum: 7 }, 'Succeed', null, true));
       });
     });
     context('when the state has `"Type": "Fail"`', () => {
@@ -119,7 +120,7 @@ describe('FakeStateMachine', () => {
 
         expect(
           fakeStateMachine.runState('Target', { sum: 7 })
-        ).to.deep.equal({ sum: 7 });
+        ).to.deep.equal(new RunStateResult({ sum: 7 }, 'Fail', null, true));
       });
     });
     context('when the state has `"Type": "Choice"`', () => {
@@ -135,7 +136,8 @@ describe('FakeStateMachine', () => {
               Target: {
                 Input: 'a',
                 ResultPath: '$.a2',
-                Type: 'Pass'
+                Type: 'Pass',
+                Next: 'NextState'
               }
             }
           };
@@ -144,10 +146,10 @@ describe('FakeStateMachine', () => {
             fakeStateMachine.runState('Target', {
               a1: 123
             })
-          ).to.deep.equal({
+          ).to.deep.equal(new RunStateResult({
             a1: 123,
             a2: 'a'
-          });
+          }, 'Pass', 'NextState', false));
         });
       });
       context('when there is an InputPath field', () => {
@@ -158,7 +160,8 @@ describe('FakeStateMachine', () => {
               Target: {
                 InputPath: '$.a1',
                 ResultPath: '$.a2',
-                Type: 'Pass'
+                Type: 'Pass',
+                Next: 'NextState'
               }
             }
           };
@@ -167,10 +170,10 @@ describe('FakeStateMachine', () => {
             fakeStateMachine.runState('Target', {
               a1: 123
             })
-          ).to.deep.equal({
+          ).to.deep.equal(new RunStateResult({
             a1: 123,
             a2: 123
-          });
+          }, 'Pass', 'NextState', false));
         });
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {
@@ -181,7 +184,8 @@ describe('FakeStateMachine', () => {
               Target: {
                 InputPath: '$.a.b2.c1',
                 ResultPath: '$.a.b3.c2',
-                Type: 'Pass'
+                Type: 'Pass',
+                Next: 'NextState'
               }
             }
           };
@@ -194,13 +198,13 @@ describe('FakeStateMachine', () => {
                 b3: { c1: 'a-b3-c1' }
               }
             })
-          ).to.deep.equal({
+          ).to.deep.equal(new RunStateResult({
             a: {
               b1: 'a-b1',
               b2: { c1: 'a-b2-c1' },
               b3: { c1: 'a-b3-c1', c2: 'a-b2-c1' }
             }
-          });
+          }, 'Pass', 'NextState', false));
         });
       });
     });
@@ -219,7 +223,8 @@ describe('FakeStateMachine', () => {
                 InputPath: '$.numbers',
                 Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
                 ResultPath: '$.sum',
-                Type: 'Task'
+                Type: 'Task',
+                Next: 'NextState'
               }
             }
           };
@@ -228,10 +233,10 @@ describe('FakeStateMachine', () => {
             fakeStateMachine.runState('Target', {
               numbers: { val1: 3, val2: 4 }
             })
-          ).to.deep.equal({
+          ).to.deep.equal(new RunStateResult({
             numbers: { val1: 3, val2: 4 },
             sum: 7
-          });
+          }, 'Task', 'NextState', false));
         });
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {
@@ -243,7 +248,8 @@ describe('FakeStateMachine', () => {
                 InputPath: '$.a.b3.c2',
                 Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
                 ResultPath: '$.sum',
-                Type: 'Task'
+                Type: 'Task',
+                Next: 'NextState'
               }
             }
           };
@@ -256,14 +262,14 @@ describe('FakeStateMachine', () => {
                 }
               }
             })
-          ).to.deep.equal({
+          ).to.deep.equal(new RunStateResult({
             a: {
               b3: {
                 c2: { val1: 3, val2: 4 }
               }
             },
             sum: 7
-          });
+          }, 'Task', 'NextState', false));
         });
       });
       context('when the Task state is called without InputPath', () => {

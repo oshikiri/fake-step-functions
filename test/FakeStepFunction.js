@@ -217,8 +217,19 @@ describe('FakeStepFunction', () => {
       });
     });
 
-    context('when the Task state is called without InputPath', () => {
-      it('should pass $ to the Resource')
+    context('when the state has `"Type": "Task"`', () => {
+      context('when there is an InputPath field', () => {
+        it('should pass the specified subset to the Resource')
+      })
+      context('when the InputPath points a path like $.a.b3.c2', () => {
+        it('should pass the specified subset to the Resource')
+      })
+      context('when the Task state is called without InputPath', () => {
+        it('should pass $ to the Resource')
+      })
+      context('when the Task state is called with Input', () => {
+        it('should pass the Input to the Resource')
+      })
     })
 
     context('when the state has `"End": true`', () => {

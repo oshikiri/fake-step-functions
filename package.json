@@ -9,7 +9,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "mocha",
-    "eslint": "./node_modules/.bin/eslint --fix *.js test/*.js"
+    "eslint": "./node_modules/.bin/eslint --fix src/*.js test/*.js"
   },
   "dependencies": {
     "jsonpath": "^1.0.0"

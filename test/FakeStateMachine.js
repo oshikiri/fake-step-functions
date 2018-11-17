@@ -3,8 +3,8 @@
 'use strict';
 
 const expect = require('chai').expect;
-const FakeStateMachine = require('../FakeStateMachine').FakeStateMachine;
-const RunStateResult = require('../RunStateResult').RunStateResult;
+const FakeStateMachine = require('../src/FakeStateMachine').FakeStateMachine;
+const RunStateResult = require('../src/RunStateResult').RunStateResult;
 
 describe('FakeStateMachine', () => {
   describe('#run()', () => {

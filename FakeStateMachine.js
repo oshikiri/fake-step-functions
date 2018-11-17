@@ -32,7 +32,20 @@ class FakeStateMachine {
         break;
       }
       case 'Pass': {
-        const dataInputPath = state.InputPath ? jsonpath.value(data, state.InputPath) : null;
+        let dataInputPath;
+        switch (state.InputPath) {
+          case undefined: {
+            dataInputPath = null;
+            break;
+          }
+          case null: {
+            dataInputPath = {};
+            break;
+          }
+          default: {
+            dataInputPath = jsonpath.value(data, state.InputPath);
+          }
+        }
         const newValue = state.Input || dataInputPath; // TODO: priority?
         jsonpath.value(data, state.ResultPath, newValue);
         break;

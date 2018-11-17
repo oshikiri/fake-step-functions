@@ -203,28 +203,57 @@ describe('FakeStateMachine', () => {
           }, 'Pass', 'NextState', false));
         });
       });
-      context('when there is an InputPath field', () => {
-        it('should fill outputPath using InputPath field', () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                InputPath: '$.a1',
-                ResultPath: '$.a2',
-                Type: 'Pass',
-                Next: 'NextState'
+      context('when the state has an InputPath field', () => {
+        context('when the InputPath is undefined', () => {
+          it('should fill outputPath using the whole data ($)');
+        });
+        context('when the InputPath is null', () => {
+          it('should fill outputPath using {}', () => {
+            const definition = {
+              StartAt: 'Start',
+              States: {
+                Target: {
+                  InputPath: null,
+                  ResultPath: '$.a2',
+                  Type: 'Pass',
+                  Next: 'NextState'
+                }
               }
-            }
-          };
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            fakeStateMachine.runState('Target', {
-              a1: 123
-            })
-          ).to.deep.equal(new RunStateResult({
-            a1: 123,
-            a2: 123
-          }, 'Pass', 'NextState', false));
+            };
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Target', {
+                a1: 123
+              })
+            ).to.deep.equal(new RunStateResult({
+              a1: 123,
+              a2: {}
+            }, 'Pass', 'NextState', false));
+          });
+        });
+        context('when the InputPath is non-null', () => {
+          it('should fill outputPath using InputPath field', () => {
+            const definition = {
+              StartAt: 'Start',
+              States: {
+                Target: {
+                  InputPath: '$.a1',
+                  ResultPath: '$.a2',
+                  Type: 'Pass',
+                  Next: 'NextState'
+                }
+              }
+            };
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Target', {
+                a1: 123
+              })
+            ).to.deep.equal(new RunStateResult({
+              a1: 123,
+              a2: 123
+            }, 'Pass', 'NextState', false));
+          });
         });
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {

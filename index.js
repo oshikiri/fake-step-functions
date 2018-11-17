@@ -10,7 +10,7 @@ class FakeStateMachine {
   }
 
   run(input) {
-    const startAt = this.definition.StartAt
+    const startAt = this.definition.StartAt;
     if (startAt === undefined) {
       throw new Error('StartAt does not exist');
     }
@@ -26,8 +26,8 @@ class FakeStateMachine {
       case 'Task': {
         const resourceArn = state.Resource;
         const resource = this.fakeResources[resourceArn];
-        const input = data[state.InputPath.split('.')[1]];
-        newData[state.ResultPath.split('.')[1]] = resource(input);
+        const input = jsonpath.value(data, state.InputPath);
+        jsonpath.value(data, state.ResultPath, resource(input));
         return newData;
       }
       case 'Pass': {

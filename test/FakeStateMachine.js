@@ -202,11 +202,65 @@ describe('FakeStateMachine', () => {
     });
 
     context('when the state has `"Type": "Task"`', () => {
+      const fakeResources = {
+        'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
+        'arn:aws:lambda:us-east-1:123456789012:function:Double': n => 2 * n,
+      };
       context('when there is an InputPath field', () => {
-        it('should pass the specified subset to the Resource');
+        it('should pass the specified subset to the Resource', () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                InputPath: '$.numbers',
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
+                ResultPath: '$.sum',
+                Type: 'Task'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          expect(
+            fakeStateMachine.runState('Target', {
+              numbers: { val1: 3, val2: 4 }
+            })
+          ).to.deep.equal({
+            numbers: { val1: 3, val2: 4 },
+            sum: 7
+          });
+        });
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {
-        it('should pass the specified subset to the Resource');
+        it('should pass the specified subset to the Resource', () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                InputPath: '$.a.b3.c2',
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
+                ResultPath: '$.sum',
+                Type: 'Task'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          expect(
+            fakeStateMachine.runState('Target', {
+              a: {
+                b3: {
+                  c2: { val1: 3, val2: 4 }
+                }
+              }
+            })
+          ).to.deep.equal({
+            a: {
+              b3: {
+                c2: { val1: 3, val2: 4 }
+              }
+            },
+            sum: 7
+          });
+        });
       });
       context('when the Task state is called without InputPath', () => {
         it('should pass $ to the Resource');

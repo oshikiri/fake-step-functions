@@ -31,29 +31,29 @@ class FakeStateMachine {
     const data = Object.assign({}, _data);
     let nextState = state.Next || null;
 
+    let dataInputPath;
+    switch (state.InputPath) {
+      case undefined: {
+        dataInputPath = Object.assign({}, _data);
+        break;
+      }
+      case null: {
+        dataInputPath = {};
+        break;
+      }
+      default: {
+        dataInputPath = jsonpath.value(data, state.InputPath);
+      }
+    }
+
     switch (stateType) {
       case 'Task': {
         const resourceArn = state.Resource;
         const resource = this.fakeResources[resourceArn];
-        const input = jsonpath.value(data, state.InputPath);
-        jsonpath.value(data, state.ResultPath, resource(input));
+        jsonpath.value(data, state.ResultPath, resource(dataInputPath));
         break;
       }
       case 'Pass': {
-        let dataInputPath;
-        switch (state.InputPath) {
-          case undefined: {
-            dataInputPath = Object.assign({}, _data);
-            break;
-          }
-          case null: {
-            dataInputPath = {};
-            break;
-          }
-          default: {
-            dataInputPath = jsonpath.value(data, state.InputPath);
-          }
-        }
         const newValue = state.Input || dataInputPath; // TODO: priority?
         jsonpath.value(data, state.ResultPath, newValue);
         break;

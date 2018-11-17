@@ -490,7 +490,30 @@ describe('FakeStateMachine', () => {
         });
       });
       context('when the Task state is called without InputPath', () => {
-        it('should pass $ to the Resource');
+        it('should pass $ to the Resource', () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
+                ResultPath: '$.sum',
+                Type: 'Task',
+                Next: 'NextState'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          expect(
+            fakeStateMachine.runState('Target', {
+              val1: 3,
+              val2: 4,
+            })
+          ).to.deep.equal(new RunStateResult({
+            val1: 3,
+            val2: 4,
+            sum: 7,
+          }, 'Task', 'NextState', false));
+        });
       });
       context('when the Task state is called with Input', () => {
         it('should pass the Input to the Resource');

@@ -3,6 +3,8 @@
 const jsonpath = require('jsonpath');
 const RunStateResult = require('./RunStateResult').RunStateResult;
 
+const clone = obj => JSON.parse(JSON.stringify(obj));
+
 class FakeStateMachine {
   constructor(definition, fakeResources) {
     this.definition = definition;
@@ -51,12 +53,12 @@ class FakeStateMachine {
       case 'Task': {
         const resourceArn = state.Resource;
         const resource = this.fakeResources[resourceArn];
-        jsonpath.value(data, state.ResultPath, resource(dataInputPath));
+        jsonpath.value(data, state.ResultPath, clone(resource(dataInputPath)));
         break;
       }
       case 'Pass': {
         const newValue = state.Input || dataInputPath; // TODO: priority?
-        jsonpath.value(data, state.ResultPath, newValue);
+        jsonpath.value(data, state.ResultPath, clone(newValue));
         break;
       }
       case 'Succeed':

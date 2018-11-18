@@ -144,6 +144,38 @@ describe('FakeStateMachine', () => {
         }, 'Succeed', null, true));
       });
     });
+
+    context('when the state updates a copied field', () => {
+      it('should not affect the original field', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Start: {
+              Type: 'Pass',
+              InputPath: '$.a1',
+              ResultPath: '$.a2',
+              Next: 'Increment'
+            },
+            Increment: {
+              Type: 'Pass',
+              Input: 2,
+              ResultPath: '$.a2.b',
+              Next: 'Done'
+            },
+            Done: {
+              Type: 'Succeed'
+            }
+          }
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(fakeStateMachine.run({
+          a1: { b: 1 }
+        })).to.deep.equal(new RunStateResult({
+          a1: { b: 1 },
+          a2: { b: 2 }
+        }, 'Succeed', null, true));
+      });
+    });
   });
 
   describe('#runState()', () => {

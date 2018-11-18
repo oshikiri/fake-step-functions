@@ -6,4 +6,8 @@ node_js:
 before_install:
   - if [[ $TRAVIS_NODE_VERSION == 8 ]]; then npm i -g npm@latest; fi
 
+script:
+  - ./node_modules/.bin/eslint src/*.js test/*.js
+  - npm test
+
 cache: npm

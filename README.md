@@ -1,6 +1,8 @@
 FakeStepFunctions
 =========================
 
+[![Build Status](https://travis-ci.org/oshikiri/FakeStepFunctions.svg?branch=master)](https://travis-ci.org/oshikiri/FakeStepFunctions)
+
 A lightweight testing toolkit for Amazon States Language.
 
 ## References

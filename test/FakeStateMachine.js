@@ -178,6 +178,51 @@ describe('FakeStateMachine', () => {
     });
   });
 
+  describe('#runPartial()', () => {
+    const definition = {
+      StartAt: 'Pass0',
+      States: {
+        Pass0: {
+          Input: 'a',
+          ResultPath: '$.p0',
+          Type: 'Pass',
+          Next: 'Pass1',
+        },
+        Pass1: {
+          Input: 'b',
+          ResultPath: '$.p1',
+          Type: 'Pass',
+          Next: 'Pass2'
+        },
+        Pass2: {
+          Input: 'c',
+          ResultPath: '$.p2',
+          Type: 'Pass',
+          Next: 'Pass3'
+        },
+        Pass3: {
+          Input: 'd',
+          ResultPath: '$.p3',
+          Type: 'Pass',
+          Next: 'Done'
+        },
+        Done: {
+          Type: 'Succeed'
+        }
+      }
+    };
+    const fakeStateMachine = new FakeStateMachine(definition, {});
+    it('should execute states between the start state and the end state', () => {
+      expect(
+        fakeStateMachine.runPartial({ title: 'run-partial' }, 'Pass1', 'Pass2')
+      ).to.deep.equal(new RunStateResult({
+        title: 'run-partial',
+        p1: 'b',
+        p2: 'c',
+      }, 'Pass', 'Pass3', false));
+    });
+  });
+
   describe('#runState()', () => {
     context('when the specified stateName does not exists', () => {
       it('should throw an Error', () => {

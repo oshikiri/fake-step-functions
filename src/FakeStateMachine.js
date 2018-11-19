@@ -32,22 +32,7 @@ class FakeStateMachine {
     const stateType = state.Type;
     const data = clone(_data);
     let nextState = state.Next || null;
-
-    let dataInputPath;
-    switch (state.InputPath) {
-      case undefined: {
-        dataInputPath = clone(data);
-        break;
-      }
-      case null: {
-        dataInputPath = {};
-        break;
-      }
-      default: {
-        dataInputPath = jsonpath.value(data, state.InputPath);
-      }
-    }
-    if (state.Result !== undefined) dataInputPath = state.Result; // TODO: priority?
+    const dataInputPath = FakeStateMachine.inputData(state, data);
 
     switch (stateType) {
       case 'Task': {
@@ -85,6 +70,22 @@ class FakeStateMachine {
     const isTermialState = state.End === true || stateType === 'Succeed' || stateType === 'Fail';
     const runStateResult = new RunStateResult(data, stateType, nextState, isTermialState);
     return runStateResult;
+  }
+
+  static inputData(state, data) {
+    if (state.Result !== undefined) return state.Result; // TODO: priority?
+
+    switch (state.InputPath) {
+      case undefined: {
+        return clone(data);
+      }
+      case null: {
+        return {};
+      }
+      default: {
+        return jsonpath.value(data, state.InputPath);
+      }
+    }
   }
 }
 exports.FakeStateMachine = FakeStateMachine;

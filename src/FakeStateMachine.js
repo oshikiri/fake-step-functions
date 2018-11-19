@@ -30,13 +30,13 @@ class FakeStateMachine {
     if (state === undefined) throw new Error(`the state ${stateName} does not exists`);
 
     const stateType = state.Type;
-    const data = Object.assign({}, _data);
+    const data = clone(_data);
     let nextState = state.Next || null;
 
     let dataInputPath;
     switch (state.InputPath) {
       case undefined: {
-        dataInputPath = Object.assign({}, _data);
+        dataInputPath = clone(data);
         break;
       }
       case null: {

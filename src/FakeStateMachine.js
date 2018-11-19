@@ -26,39 +26,31 @@ class FakeStateMachine {
   }
 
   runState(stateName, _data) {
-    const state = this.definition.States[stateName];
-    if (state === undefined) throw new Error(`the state ${stateName} does not exists`);
-
-    const stateType = state.Type;
     const data = clone(_data);
+    const state = this.definition.States[stateName];
+    if (state === undefined) {
+      throw new Error(`the state ${stateName} does not exists`);
+    }
+    const stateType = state.Type;
     let nextState = state.Next || null;
-    const dataInputPath = FakeStateMachine.inputData(state, data);
 
     switch (stateType) {
       case 'Task': {
-        const resourceArn = state.Resource;
-        const resource = this.fakeResources[resourceArn];
-        jsonpath.value(data, state.ResultPath, clone(resource(dataInputPath)));
+        const resource = this.fakeResources[state.Resource];
+        const newValue = FakeStateMachine.runStateTask(state, data, resource);
+        jsonpath.value(data, state.ResultPath, newValue);
         break;
       }
       case 'Pass': {
-        const newValue = state.Input || dataInputPath; // TODO: priority?
-        jsonpath.value(data, state.ResultPath, clone(newValue));
+        const newValue = FakeStateMachine.runStatePass(state, data);
+        jsonpath.value(data, state.ResultPath, newValue);
         break;
       }
       case 'Succeed':
       case 'Fail':
         break;
       case 'Choice': {
-        const choice0 = state.Choices[0];
-        const input = jsonpath.value(data, choice0.Variable);
-        if (
-          (choice0.BooleanEquals && input === choice0.BooleanEquals)
-          || (choice0.NumericEquals && input === choice0.NumericEquals)) {
-          nextState = choice0.Next;
-        } else {
-          nextState = state.Default;
-        }
+        nextState = FakeStateMachine.runStateChoice(state, data);
         break;
       }
       case 'Wait':
@@ -68,8 +60,29 @@ class FakeStateMachine {
         throw new Error(`Invalid Type: ${stateType}`);
     }
     const isTermialState = state.End === true || stateType === 'Succeed' || stateType === 'Fail';
-    const runStateResult = new RunStateResult(data, stateType, nextState, isTermialState);
-    return runStateResult;
+
+    return new RunStateResult(data, stateType, nextState, isTermialState);
+  }
+
+  static runStateTask(state, data, resource) {
+    const dataInputPath = FakeStateMachine.inputData(state, data);
+    return clone(resource(dataInputPath));
+  }
+
+  static runStatePass(state, data) {
+    const dataInputPath = FakeStateMachine.inputData(state, data);
+    return clone(state.Input || dataInputPath); // TODO: priority?
+  }
+
+  static runStateChoice(state, data) {
+    const choice0 = state.Choices[0];
+    const input = jsonpath.value(data, choice0.Variable);
+    if (
+      (choice0.BooleanEquals && input === choice0.BooleanEquals)
+      || (choice0.NumericEquals && input === choice0.NumericEquals)) {
+      return choice0.Next;
+    }
+    return state.Default;
   }
 
   static inputData(state, data) {

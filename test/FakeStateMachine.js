@@ -381,6 +381,9 @@ describe('FakeStateMachine', () => {
           });
         });
       });
+      context('when Choices with other types of conditions', () => {
+        it('should handle the condition');
+      });
       context('when Choices contains more than two element', () => {
         it('should select the expected state as a next state', () => {
           const definition = {

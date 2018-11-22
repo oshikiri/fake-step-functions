@@ -341,7 +341,6 @@ describe('FakeStateMachine', () => {
     });
     context('when the state has `"Type": "Choice"`', () => {
       context('when Choices contains only one element and with BooleanEquals', () => {
-        it('should select expected state as a next state', () => {
           const definition = {
             States: {
               Choices: {
@@ -357,9 +356,23 @@ describe('FakeStateMachine', () => {
               }
             }
           };
+        context('when the first condition is not fullfilled', () => {
+          it('should select a Default state as a next state', () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
             fakeStateMachine.runState('Choices', {
+                condition: false
+              })
+            ).to.deep.equal(new RunStateResult({
+              condition: false
+            }, 'Choice', 'DefaultState', false));
+          });
+        });
+        context('when the first condition is fullfilled', () => {
+          it('should select the specified state as a next state', () => {
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Choices', {
               condition: true
             })
           ).to.deep.equal(new RunStateResult({

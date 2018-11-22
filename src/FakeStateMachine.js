@@ -86,7 +86,11 @@ class FakeStateMachine {
   }
 
   static inputData(state, data) {
-    if (state.Result !== undefined) return state.Result; // TODO: priority?
+    if (state.Type === 'Pass') {
+      if (state.Result !== undefined) return state.Result; // TODO: priority?
+    } else if (state.Type === 'Task') {
+      if (state.Input !== undefined) return state.Input;
+    }
 
     switch (state.InputPath) {
       case undefined: {

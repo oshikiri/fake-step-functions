@@ -665,7 +665,26 @@ describe('FakeStateMachine', () => {
         });
       });
       context('when the Task state is called with Input', () => {
-        it('should pass the Input to the Resource');
+        it('should pass the Input to the Resource', () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Double',
+                Input: 3,
+                ResultPath: '$.result',
+                Type: 'Task',
+                Next: 'NextState'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          expect(
+            fakeStateMachine.runState('Target', {})
+          ).to.deep.equal(new RunStateResult({
+            result: 6,
+          }, 'Task', 'NextState', false));
+        });
       });
     });
     context('when the state has `"Type": "Wait"`', () => {

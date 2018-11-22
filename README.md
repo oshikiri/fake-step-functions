@@ -44,3 +44,4 @@ fakeStateMachine.run(input).data
 - [airware/asl\-validator](https://github.com/airware/asl-validator)
 - [airware/stepfunctions\-local](https://github.com/airware/stepfunctions-local)
 - [coinbase/step](https://github.com/coinbase/step) (in Golang)
+- [mikeparisstuff/stateslang\-js](https://github.com/mikeparisstuff/stateslang-js)

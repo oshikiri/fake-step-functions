@@ -79,8 +79,10 @@ class FakeStateMachine {
       const input = jsonpath.value(data, choice.Variable);
       return (
         (choice.StringEquals && input === choice.StringEquals)
-        || (choice.BooleanEquals && input === choice.BooleanEquals)
         || (choice.NumericEquals && input === choice.NumericEquals)
+        || (choice.NumericLessThan && input < choice.NumericLessThan)
+        || (choice.NumericGreaterThan && input > choice.NumericGreaterThan)
+        || (choice.BooleanEquals && input === choice.BooleanEquals)
       );
     });
 

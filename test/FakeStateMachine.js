@@ -394,6 +394,39 @@ describe('FakeStateMachine', () => {
             );
           });
         });
+        context('when Choices contain NumericEquals conditions', () => {
+          const definition = definitionWithChoices({ NumericEquals: 10 });
+          it('should select the specified state as a next state', () => {
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Choices', { condition: 10 })
+            ).to.deep.equal(
+              new RunStateResult({ condition: 10 }, 'Choice', 'NextState', false)
+            );
+          });
+        });
+        context('when Choices contain NumericLessThan conditions', () => {
+          const definition = definitionWithChoices({ NumericLessThan: 10 });
+          it('should select the specified state as a next state', () => {
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Choices', { condition: 9 })
+            ).to.deep.equal(
+              new RunStateResult({ condition: 9 }, 'Choice', 'NextState', false)
+            );
+          });
+        });
+        context('when Choices contain NumericGreaterThan conditions', () => {
+          const definition = definitionWithChoices({ NumericGreaterThan: 10 });
+          it('should select the specified state as a next state', () => {
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Choices', { condition: 11 })
+            ).to.deep.equal(
+              new RunStateResult({ condition: 11 }, 'Choice', 'NextState', false)
+            );
+          });
+        });
       });
       context('when Choices contains more than two element', () => {
         it('should select the expected state as a next state', () => {

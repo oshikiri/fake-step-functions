@@ -77,8 +77,11 @@ class FakeStateMachine {
   static runStateChoice(state, data) {
     const matched = state.Choices.find((choice) => {
       const input = jsonpath.value(data, choice.Variable);
-      return (choice.BooleanEquals && input === choice.BooleanEquals)
-        || (choice.NumericEquals && input === choice.NumericEquals);
+      return (
+        (choice.StringEquals && input === choice.StringEquals)
+        || (choice.BooleanEquals && input === choice.BooleanEquals)
+        || (choice.NumericEquals && input === choice.NumericEquals)
+      );
     });
 
     if (matched !== undefined) return matched.Next;

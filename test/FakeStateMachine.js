@@ -383,7 +383,31 @@ describe('FakeStateMachine', () => {
           });
         });
         context('when Choices contain StringEquals conditions', () => {
-          it('should select the specified state as a next state');
+          const definition = {
+            States: {
+              Choices: {
+                Type: 'Choice',
+                Choices: [
+                  {
+                    Variable: '$.condition',
+                    StringEquals: 'abc',
+                    Next: 'NextState',
+                  }
+                ],
+                Default: 'DefaultState'
+              }
+            }
+          };
+          it('should select the specified state as a next state', () => {
+            const fakeStateMachine = new FakeStateMachine(definition, {});
+            expect(
+              fakeStateMachine.runState('Choices', {
+                condition: 'abc'
+              })
+            ).to.deep.equal(new RunStateResult({
+              condition: 'abc'
+            }, 'Choice', 'NextState', false));
+          });
         });
       });
       context('when Choices contains more than two element', () => {

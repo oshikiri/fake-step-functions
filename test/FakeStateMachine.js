@@ -340,49 +340,51 @@ describe('FakeStateMachine', () => {
       });
     });
     context('when the state has `"Type": "Choice"`', () => {
-      context('when Choices contains only one element and with BooleanEquals', () => {
-        const definition = {
-          States: {
-            Choices: {
-              Type: 'Choice',
-              Choices: [
-                {
-                  Variable: '$.condition',
-                  BooleanEquals: true,
-                  Next: 'NextState',
-                }
-              ],
-              Default: 'DefaultState'
+      context('when Choices contains only one element', () => {
+        context('when Choices contain BooleanEquals conditions', () => {
+          const definition = {
+            States: {
+              Choices: {
+                Type: 'Choice',
+                Choices: [
+                  {
+                    Variable: '$.condition',
+                    BooleanEquals: true,
+                    Next: 'NextState',
+                  }
+                ],
+                Default: 'DefaultState'
+              }
             }
-          }
-        };
-        context('when the first condition is not fullfilled', () => {
-          it('should select a Default state as a next state', () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              fakeStateMachine.runState('Choices', {
+          };
+          context('when the first condition is not fullfilled', () => {
+            it('should select a Default state as a next state', () => {
+              const fakeStateMachine = new FakeStateMachine(definition, {});
+              expect(
+                fakeStateMachine.runState('Choices', {
+                  condition: false
+                })
+              ).to.deep.equal(new RunStateResult({
                 condition: false
-              })
-            ).to.deep.equal(new RunStateResult({
-              condition: false
-            }, 'Choice', 'DefaultState', false));
+              }, 'Choice', 'DefaultState', false));
+            });
           });
-        });
-        context('when the first condition is fullfilled', () => {
-          it('should select the specified state as a next state', () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              fakeStateMachine.runState('Choices', {
+          context('when the first condition is fullfilled', () => {
+            it('should select the specified state as a next state', () => {
+              const fakeStateMachine = new FakeStateMachine(definition, {});
+              expect(
+                fakeStateMachine.runState('Choices', {
+                  condition: true
+                })
+              ).to.deep.equal(new RunStateResult({
                 condition: true
-              })
-            ).to.deep.equal(new RunStateResult({
-              condition: true
-            }, 'Choice', 'NextState', false));
+              }, 'Choice', 'NextState', false));
+            });
           });
         });
-      });
-      context('when Choices with other types of conditions', () => {
-        it('should handle the condition');
+        context('when Choices contain StringEquals conditions', () => {
+          it('should select the specified state as a next state');
+        });
       });
       context('when Choices contains more than two element', () => {
         it('should select the expected state as a next state', () => {

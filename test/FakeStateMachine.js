@@ -341,22 +341,23 @@ describe('FakeStateMachine', () => {
     });
     context('when the state has `"Type": "Choice"`', () => {
       context('when Choices contains only one element', () => {
-        context('when Choices contain BooleanEquals conditions', () => {
-          const definition = {
+        const definitionWithChoices = (comparison) => {
+          const choice = Object.assign({
+            Variable: '$.condition',
+            Next: 'NextState',
+          }, comparison);
+          return {
             States: {
               Choices: {
                 Type: 'Choice',
-                Choices: [
-                  {
-                    Variable: '$.condition',
-                    BooleanEquals: true,
-                    Next: 'NextState',
-                  }
-                ],
+                Choices: [choice],
                 Default: 'DefaultState'
               }
             }
           };
+        };
+        context('when Choices contain BooleanEquals conditions', () => {
+          const definition = definitionWithChoices({ BooleanEquals: true });
           context('when the first condition is not fullfilled', () => {
             it('should select a Default state as a next state', () => {
               const fakeStateMachine = new FakeStateMachine(definition, {});
@@ -383,30 +384,14 @@ describe('FakeStateMachine', () => {
           });
         });
         context('when Choices contain StringEquals conditions', () => {
-          const definition = {
-            States: {
-              Choices: {
-                Type: 'Choice',
-                Choices: [
-                  {
-                    Variable: '$.condition',
-                    StringEquals: 'abc',
-                    Next: 'NextState',
-                  }
-                ],
-                Default: 'DefaultState'
-              }
-            }
-          };
+          const definition = definitionWithChoices({ StringEquals: 'abc' });
           it('should select the specified state as a next state', () => {
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
-              fakeStateMachine.runState('Choices', {
-                condition: 'abc'
-              })
-            ).to.deep.equal(new RunStateResult({
-              condition: 'abc'
-            }, 'Choice', 'NextState', false));
+              fakeStateMachine.runState('Choices', { condition: 'abc' })
+            ).to.deep.equal(
+              new RunStateResult({ condition: 'abc' }, 'Choice', 'NextState', false)
+            );
           });
         });
       });

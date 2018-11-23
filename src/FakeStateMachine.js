@@ -82,6 +82,8 @@ class FakeStateMachine {
         || (choice.NumericEquals && input === choice.NumericEquals)
         || (choice.NumericLessThan && input < choice.NumericLessThan)
         || (choice.NumericGreaterThan && input > choice.NumericGreaterThan)
+        || (choice.NumericLessThanEquals && input <= choice.NumericLessThanEquals)
+        || (choice.NumericGreaterThanEquals && input >= choice.NumericGreaterThanEquals)
         || (choice.BooleanEquals && input === choice.BooleanEquals)
       );
     });

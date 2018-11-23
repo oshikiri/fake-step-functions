@@ -356,7 +356,7 @@ describe('FakeStateMachine', () => {
             }
           };
         };
-        context('when Choices contain BooleanEquals conditions', () => {
+        context('with BooleanEquals', () => {
           const definition = definitionWithChoices({ BooleanEquals: true });
           context('when the first condition is not fullfilled', () => {
             it('should select a Default state as a next state', () => {
@@ -383,7 +383,7 @@ describe('FakeStateMachine', () => {
             });
           });
         });
-        context('when Choices contain StringEquals conditions', () => {
+        context('with StringEquals', () => {
           const definition = definitionWithChoices({ StringEquals: 'abc' });
           it('should select the specified state as a next state', () => {
             const fakeStateMachine = new FakeStateMachine(definition, {});
@@ -394,7 +394,7 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when Choices contain NumericEquals conditions', () => {
+        context('with NumericEquals', () => {
           const definition = definitionWithChoices({ NumericEquals: 10 });
           it('should select the specified state as a next state', () => {
             const fakeStateMachine = new FakeStateMachine(definition, {});
@@ -405,7 +405,7 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when Choices contain NumericLessThan conditions', () => {
+        context('with NumericLessThan', () => {
           const definition = definitionWithChoices({ NumericLessThan: 10 });
           it('should select the specified state as a next state', () => {
             const fakeStateMachine = new FakeStateMachine(definition, {});
@@ -416,7 +416,7 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when Choices contain NumericGreaterThan conditions', () => {
+        context('with NumericGreaterThan', () => {
           const definition = definitionWithChoices({ NumericGreaterThan: 10 });
           it('should select the specified state as a next state', () => {
             const fakeStateMachine = new FakeStateMachine(definition, {});
@@ -426,6 +426,15 @@ describe('FakeStateMachine', () => {
               new RunStateResult({ condition: 11 }, 'Choice', 'NextState', false)
             );
           });
+        });
+        context('with And', () => {
+          it('pending');
+        });
+        context('with Or', () => {
+          it('pending');
+        });
+        context('with Not', () => {
+          it('pending');
         });
       });
       context('when Choices contains more than two element', () => {

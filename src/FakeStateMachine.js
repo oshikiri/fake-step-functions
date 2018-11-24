@@ -11,7 +11,7 @@ class FakeStateMachine {
     this.fakeResources = fakeResources;
   }
 
-  run(input) {
+  async run(input) {
     const startAt = this.definition.StartAt;
     if (startAt === undefined) {
       throw new Error('StartAt does not exist');
@@ -19,13 +19,13 @@ class FakeStateMachine {
     return this.runPartial(input, startAt, null);
   }
 
-  runPartial(data, current, end) {
-    const result = this.runState(current, data);
+  async runPartial(data, current, end) {
+    const result = await this.runState(current, data);
     if (result.isTerminalState || current === end) return result;
     return this.runPartial(result.data, result.nextStateName, end);
   }
 
-  runState(stateName, _data) {
+  async runState(stateName, _data) {
     const data = clone(_data);
     const state = this.definition.States[stateName];
     if (state === undefined) {
@@ -37,7 +37,7 @@ class FakeStateMachine {
     switch (stateType) {
       case 'Task': {
         const resource = this.fakeResources[state.Resource];
-        const newValue = FakeStateMachine.runStateTask(state, data, resource);
+        const newValue = await FakeStateMachine.runStateTask(state, data, resource);
         jsonpath.value(data, state.ResultPath, newValue);
         break;
       }
@@ -64,9 +64,9 @@ class FakeStateMachine {
     return new RunStateResult(data, stateType, nextState, isTermialState);
   }
 
-  static runStateTask(state, data, resource) {
+  static async runStateTask(state, data, resource) {
     const dataInputPath = FakeStateMachine.inputData(state, data);
-    return clone(resource(dataInputPath));
+    return clone(await resource(dataInputPath));
   }
 
   static runStatePass(state, data) {

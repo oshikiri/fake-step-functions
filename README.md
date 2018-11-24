@@ -28,7 +28,8 @@ const input = {
   numbers: { val1: 3, val2: 4 }
 };
 
-fakeStateMachine.run(input).data
+fakeStateMachine.run(input)
+  .then(r => console.log(r.data))
 // { title: 'Numbers to add',
 //   numbers: { val1: 3, val2: 4 },
 //   sum: 7 }

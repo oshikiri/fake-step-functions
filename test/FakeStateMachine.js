@@ -4,8 +4,8 @@
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const FakeStateMachine = require('../src/FakeStateMachine').FakeStateMachine;
-const RunStateResult = require('../src/RunStateResult').RunStateResult;
+const { FakeStateMachine } = require('../src/FakeStateMachine');
+const { RunStateResult } = require('../src/RunStateResult');
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);

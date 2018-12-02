@@ -36,6 +36,9 @@ class FakeStateMachine {
 
     switch (stateType) {
       case 'Task': {
+        if (!(state.Resource in this.fakeResources)) {
+          throw new Error(`Unknown resource: ${state.Resource}`);
+        }
         const resource = this.fakeResources[state.Resource];
         const newValue = await FakeStateMachine.runStateTask(state, data, resource);
         jsonpath.value(data, state.ResultPath, newValue);

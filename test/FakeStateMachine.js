@@ -769,6 +769,28 @@ describe('FakeStateMachine', () => {
           }, 'Task', 'NextState', false));
         });
       });
+      context('when the Task state contains an unknown fake resource', () => {
+        it('should raise an error', async () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Unknown',
+                ResultPath: '$.result',
+                Type: 'Task',
+                Next: 'NextState'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          return expect(
+            fakeStateMachine.runState('Target', {})
+          ).to.rejectedWith(
+            Error,
+            'Unknown resource: arn:aws:lambda:us-east-1:123456789012:function:Unknown'
+          );
+        });
+      });
     });
     context('when the state has `"Type": "Wait"`', () => {
       it('pending');

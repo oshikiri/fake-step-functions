@@ -4,7 +4,7 @@
   "author": "Takamasa Oshikiri <mail@oshikiri.org>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/oshikiri/FakeStepFunctions"
+    "url": "https://github.com/oshikiri/fake-step-functions"
   },
   "license": "Apache-2.0",
   "scripts": {

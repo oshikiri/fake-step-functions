@@ -69,7 +69,9 @@ class FakeStateMachine {
 
   static async runStateTask(state, data, resource) {
     const dataInputPath = FakeStateMachine.inputData(state, data);
-    return clone(await resource(dataInputPath));
+    const result = await resource(dataInputPath);
+    if (result === undefined) return undefined;
+    return clone(result);
   }
 
   static runStatePass(state, data) {

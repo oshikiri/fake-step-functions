@@ -3,7 +3,8 @@ module.exports = {
     "rules": {
         "strict": 0,
         "comma-dangle": 0,
-        "prefer-destructuring": 0
+        "prefer-destructuring": 0,
+        'no-restricted-syntax': 'off',
     },
     plugins: ['chai-friendly'],
     overrides: [{

@@ -43,7 +43,10 @@ fakeStateMachine.run(input)
 
 ### Similar projects
 
-- [airware/asl\-validator](https://github.com/airware/asl-validator)
 - [airware/stepfunctions\-local](https://github.com/airware/stepfunctions-local)
-- [coinbase/step](https://github.com/coinbase/step) (in Golang)
+- [wmfs/statebox](https://github.com/wmfs/statebox)
 - [mikeparisstuff/stateslang\-js](https://github.com/mikeparisstuff/stateslang-js)
+- [coinbase/step](https://github.com/coinbase/step) (Golang)
+- validators
+  - [airware/asl\-validator](https://github.com/airware/asl-validator)
+  - [awslabs/statelint](https://github.com/awslabs/statelint) (Ruby)

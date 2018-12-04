@@ -791,6 +791,43 @@ describe('FakeStateMachine', () => {
           );
         });
       });
+      context('when the Task state contains a Parameters property', () => {
+        it('should pass the specified parameters', async () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:saveInput',
+                Parameters: {
+                  input: {
+                    val1: 3,
+                    'val2.$': '$.b.c.val2',
+                  }
+                },
+                ResultPath: '$.result',
+                Type: 'Task',
+                Next: 'NextState'
+              }
+            }
+          };
+          let input;
+          const fakeStateMachine = new FakeStateMachine(definition, {
+            'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (event) => {
+              input = event;
+              return event.input.val1 + event.input.val2;
+            }
+          });
+          const actual = await fakeStateMachine.runState('Target', { a: 2, b: { c: { val2: 4 } } });
+          expect(input).to.deep.equal({ input: { val1: 3, val2: 4 } });
+          expect(actual.data).to.deep.equal({
+            a: 2,
+            b: {
+              c: { val2: 4 }
+            },
+            result: 7,
+          });
+        });
+      });
     });
     context('when the state has `"Type": "Wait"`', () => {
       it('pending');

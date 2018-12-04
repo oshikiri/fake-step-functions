@@ -3,7 +3,8 @@
 const jsonpath = require('jsonpath');
 const RunStateResult = require('./RunStateResult').RunStateResult;
 
-const clone = obj => JSON.parse(JSON.stringify(obj));
+const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO
+const isObject = x => typeof x === 'object' && x !== null;
 
 class FakeStateMachine {
   constructor(definition, fakeResources) {
@@ -104,6 +105,11 @@ class FakeStateMachine {
       if (state.Input !== undefined) return state.Input;
     }
 
+    if (state.Parameters !== undefined) {
+      const rawParameters = state.Parameters;
+      return FakeStateMachine.resolveParameters(rawParameters, data);
+    }
+
     switch (state.InputPath) {
       case undefined: {
         return clone(data);
@@ -115,6 +121,22 @@ class FakeStateMachine {
         return jsonpath.value(data, state.InputPath);
       }
     }
+  }
+
+  static resolveParameters(rawParameters, data) {
+    const resolvedParameters = {};
+    for (let key of Object.keys(rawParameters)) {
+      const rawValue = rawParameters[key];
+      if (key.endsWith('.$')) {
+        key = key.slice(0, -2);
+        resolvedParameters[key] = jsonpath.value(data, rawValue);
+      } else if (isObject(rawValue)) {
+        resolvedParameters[key] = this.resolveParameters(rawValue, data);
+      } else {
+        resolvedParameters[key] = rawValue;
+      }
+    }
+    return resolvedParameters;
   }
 }
 exports.FakeStateMachine = FakeStateMachine;

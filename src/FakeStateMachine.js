@@ -21,12 +21,12 @@ class FakeStateMachine {
   }
 
   async runPartial(data, current, end) {
-    const result = await this.runState(current, data);
+    const result = await this.runState(data, current);
     if (result.isTerminalState || current === end) return result;
     return this.runPartial(result.data, result.nextStateName, end);
   }
 
-  async runState(stateName, _data) {
+  async runState(_data, stateName) {
     const data = clone(_data);
     const state = this.definition.States[stateName];
     if (state === undefined) {

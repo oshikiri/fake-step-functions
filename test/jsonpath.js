@@ -3,7 +3,7 @@
 'use strict';
 
 const jsonpath = require('jsonpath');
-const expect = require('chai').expect;
+const { expect } = require('chai');
 
 describe('jsonpath', () => {
   describe('#value()', () => {
@@ -34,6 +34,12 @@ describe('jsonpath', () => {
         },
       });
     });
-    it('should query using range (e.g. $.a[0..1])');
+    it.skip('should query using range $.a[0,1]', () => {
+      const data = {
+        a: [1, 2, 3, 4]
+      };
+      const result = jsonpath.value(data, '$.a[0,1]');
+      expect(result).to.equal([1, 2]);
+    });
   });
 });

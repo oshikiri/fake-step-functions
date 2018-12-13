@@ -22,13 +22,13 @@ describe('FakeStateMachine.run', () => {
   };
   const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
-  it('should execute fakeResource', async () => {
-    const actual = (await fakeStateMachine.run({
+  it('should execute the state machine with fakeResource', async () => {
+    const runStateResult = await fakeStateMachine.run({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 }
-    })).data;
+    });
 
-    expect(actual).to.deep.equal({
+    expect(runStateResult.data).to.deep.equal({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 },
       sum: 7,

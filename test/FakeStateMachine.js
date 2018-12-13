@@ -637,6 +637,7 @@ describe('FakeStateMachine', () => {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
         'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async numbers => numbers.val1 + numbers.val2,
         'arn:aws:lambda:us-east-1:123456789012:function:Double': n => 2 * n,
+        'arn:aws:lambda:us-east-1:123456789012:function:Identity': x => x,
       };
       context('when there is an InputPath field', () => {
         it('should pass the specified subset to the Resource', async () => {
@@ -766,6 +767,31 @@ describe('FakeStateMachine', () => {
             await fakeStateMachine.runState({}, 'Target')
           ).to.deep.equal(new RunStateResult({
             result: 6,
+          }, 'Task', 'NextState', false));
+        });
+      });
+      context('when the Task state does not contain ResultPath', () => {
+        it('should use the default value ResultPath=`$`', async () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Identity',
+                Parameters: {
+                  a: 1,
+                  b: 2,
+                },
+                Type: 'Task',
+                Next: 'NextState'
+              }
+            }
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          expect(
+            await fakeStateMachine.runState({}, 'Target')
+          ).to.deep.equal(new RunStateResult({
+            a: 1,
+            b: 2,
           }, 'Task', 'NextState', false));
         });
       });

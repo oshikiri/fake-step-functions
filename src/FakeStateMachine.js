@@ -42,7 +42,11 @@ class FakeStateMachine {
         }
         const resource = this.fakeResources[state.Resource];
         const newValue = await FakeStateMachine.runStateTask(state, data, resource);
-        jsonpath.value(data, state.ResultPath, newValue);
+        if (state.ResultPath === undefined) {
+          Object.assign(data, newValue);
+        } else {
+          jsonpath.value(data, state.ResultPath, newValue);
+        }
         break;
       }
       case 'Pass': {

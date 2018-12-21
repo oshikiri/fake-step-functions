@@ -182,6 +182,61 @@ describe('FakeStateMachine', () => {
     });
   });
 
+  describe('#runCondition()', () => {
+    const definition = {
+      States: {
+        'main.initialize': {
+          Type: 'Pass',
+          Result: 0,
+          ResultPath: '$.i',
+          Next: 'main.increment',
+        },
+        'main.increment': {
+          Type: 'Task',
+          InputPath: '$.i',
+          Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Increment',
+          ResultPath: '$.i',
+          Next: 'main.check',
+        },
+        'main.check': {
+          Type: 'Choice',
+          Choices: [{
+            Variable: '$.i',
+            NumericEquals: 3,
+            Next: 'hoge',
+          }],
+          Default: 'main.increment',
+        },
+        hoge: {
+          Type: 'Pass',
+          Input: -1,
+          ResultPath: '$.i',
+        },
+      }
+    };
+    const fakeStateMachine = new FakeStateMachine(definition, {
+      'arn:aws:lambda:us-east-1:123456789012:function:Increment': i => i + 1
+    });
+    context('with start and end', () => {
+      it('should run while the condition fulfills', async () => {
+        expect(
+          await fakeStateMachine.runCondition({}, { start: 'main.initialize', end: 'main.check' })
+        ).to.deep.equal(
+          new RunStateResult({ i: 1 }, 'Choice', 'main.increment', false)
+        );
+      });
+    });
+    context('with start and regex', () => {
+      it('should run while the condition fulfills', async () => {
+        expect(
+          await fakeStateMachine.runCondition({}, { start: 'main.initialize', regex: /main\.\w+/ })
+        ).to.deep.equal(
+          new RunStateResult({ i: 3 }, 'Choice', 'hoge', false)
+        );
+      });
+    });
+  });
+
   describe('#runPartial()', () => {
     const definition = {
       StartAt: 'Pass0',

@@ -26,6 +26,19 @@ class FakeStateMachine {
     return this.runPartial(result.data, result.nextStateName, end);
   }
 
+  // experimental
+  async runCondition(data, _condition) {
+    const condition = _condition;
+    const result = await this.runState(data, condition.start);
+    if (
+      result.isTerminalState
+      || condition.start === condition.end
+      || !result.nextStateName.match(condition.regex)
+    ) return result;
+    condition.start = result.nextStateName;
+    return this.runCondition(result.data, condition);
+  }
+
   async runState(_data, stateName) {
     const data = clone(_data);
     const state = this.definition.States[stateName];

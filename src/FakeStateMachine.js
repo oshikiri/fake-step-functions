@@ -1,7 +1,7 @@
 'use strict';
 
 const jsonpath = require('jsonpath');
-const RunStateResult = require('./RunStateResult').RunStateResult;
+const { RunStateResult } = require('./RunStateResult');
 
 const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = x => typeof x === 'object' && x !== null;

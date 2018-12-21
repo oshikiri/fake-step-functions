@@ -2,8 +2,8 @@
 
 'use strict';
 
-const expect = require('chai').expect;
-const RunStateResult = require('../src/RunStateResult').RunStateResult;
+const { expect } = require('chai');
+const { RunStateResult } = require('../src/RunStateResult');
 
 describe('RunStateResult', () => {
   it('should be able to compare', () => {

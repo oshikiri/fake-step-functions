@@ -1,5 +1,5 @@
-const FakeStateMachine = require('./FakeStateMachine').FakeStateMachine;
-const RunStateResult = require('./RunStateResult').RunStateResult;
+const { FakeStateMachine } = require('./FakeStateMachine');
+const { RunStateResult } = require('./RunStateResult');
 
 module.exports = {
   FakeStateMachine,

@@ -400,89 +400,89 @@ describe('FakeStateMachine', () => {
     });
     context('when the state has `"Type": "Choice"`', () => {
       context('when Choices contains only one element', () => {
-        const definitionWithChoices = (comparison) => {
-          const choice = Object.assign({
-            Variable: '$.condition',
-            Next: 'NextState',
-          }, comparison);
-          return {
-            States: {
-              Choices: {
-                Type: 'Choice',
-                Choices: [choice],
-                Default: 'DefaultState'
-              }
-            }
-          };
-        };
-        context('with StringEquals', () => {
-          const definition = definitionWithChoices({ StringEquals: 'abc' });
-          it('should select the specified state as a next state', async () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              await fakeStateMachine.runState({ condition: 'abc' }, 'Choices')
-            ).to.deep.equal(
-              new RunStateResult({ condition: 'abc' }, 'Choice', 'NextState', false)
-            );
-          });
-        });
-        context('with NumericEquals', () => {
-          const definition = definitionWithChoices({ NumericEquals: 10 });
-          it('should select the specified state as a next state', async () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              await fakeStateMachine.runState({ condition: 10 }, 'Choices')
-            ).to.deep.equal(
-              new RunStateResult({ condition: 10 }, 'Choice', 'NextState', false)
-            );
-          });
-        });
-        context('with NumericLessThan', () => {
-          const definition = definitionWithChoices({ NumericLessThan: 10 });
-          it('should select the specified state as a next state', async () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              await fakeStateMachine.runState({ condition: 9 }, 'Choices')
-            ).to.deep.equal(
-              new RunStateResult({ condition: 9 }, 'Choice', 'NextState', false)
-            );
-          });
-        });
-        context('with NumericGreaterThan', () => {
-          const definition = definitionWithChoices({ NumericGreaterThan: 10 });
-          it('should select the specified state as a next state', async () => {
-            const fakeStateMachine = new FakeStateMachine(definition, {});
-            expect(
-              await fakeStateMachine.runState({ condition: 11 }, 'Choices')
-            ).to.deep.equal(
-              new RunStateResult({ condition: 11 }, 'Choice', 'NextState', false)
-            );
-          });
-        });
-        context('with BooleanEquals', () => {
-          const definition = definitionWithChoices({ BooleanEquals: true });
-          context('when the first condition is not fullfilled', () => {
-            it('should select a Default state as a next state', async () => {
-              const fakeStateMachine = new FakeStateMachine(definition, {});
-              expect(
-                await fakeStateMachine.runState({
-                  condition: false
-                }, 'Choices')
-              ).to.deep.equal(new RunStateResult({
-                condition: false
-              }, 'Choice', 'DefaultState', false));
-            });
-          });
-          context('when the first condition is fullfilled', () => {
-            it('should select the specified state as a next state', async () => {
-              const fakeStateMachine = new FakeStateMachine(definition, {});
-              expect(
-                await fakeStateMachine.runState({
-                  condition: true
-                }, 'Choices')
-              ).to.deep.equal(new RunStateResult({
-                condition: true
-              }, 'Choice', 'NextState', false));
+        const conditions = [
+          {
+            conditionType: 'StringEquals',
+            condition: 'abc',
+            testCases: [
+              ['ab', 'DefaultState'],
+              ['abc', 'NextState'],
+            ],
+          },
+          {
+            conditionType: 'NumericEquals',
+            condition: 5,
+            testCases: [
+              [5.0, 'NextState'],
+              [5.1, 'DefaultState'],
+            ],
+          },
+          {
+            conditionType: 'NumericLessThan',
+            condition: 5,
+            testCases: [
+              [4.9, 'NextState'],
+              [5.0, 'DefaultState'],
+              [5.1, 'DefaultState'],
+            ],
+          },
+          {
+            conditionType: 'NumericLessThanEquals',
+            condition: 5,
+            testCases: [
+              [4.9, 'NextState'],
+              [5.0, 'NextState'],
+              [5.1, 'DefaultState'],
+            ],
+          },
+          {
+            conditionType: 'NumericGreaterThan',
+            condition: 5,
+            testCases: [
+              [4.9, 'DefaultState'],
+              [5.0, 'DefaultState'],
+              [5.1, 'NextState'],
+            ],
+          },
+          {
+            conditionType: 'BooleanEquals',
+            condition: true,
+            testCases: [
+              [false, 'DefaultState'],
+              [true, 'NextState'],
+            ],
+          },
+        ];
+
+        conditions.forEach(({ conditionType, condition, testCases }) => {
+          context(`with ${conditionType}`, () => {
+            testCases.forEach((testCaseRow) => {
+              const [inputValue, expectedNextStateName] = testCaseRow;
+              context(`when condition=${condition} and input=${inputValue}`, () => {
+                const choice = {
+                  Variable: '$.condition',
+                  Next: 'NextState',
+                };
+                choice[conditionType] = condition;
+                const definition = {
+                  States: {
+                    Choices: {
+                      Type: 'Choice',
+                      Choices: [choice],
+                      Default: 'DefaultState'
+                    }
+                  }
+                };
+
+                it(`the next state should be ${expectedNextStateName}`, async () => {
+                  const fakeStateMachine = new FakeStateMachine(definition, {});
+                  expect(
+                    await fakeStateMachine.runState({ condition: inputValue }, 'Choices')
+                  ).to.deep.equal(
+                    new RunStateResult({ condition: inputValue }, 'Choice', expectedNextStateName, false)
+                  );
+                });
+              });
             });
           });
         });

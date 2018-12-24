@@ -2,11 +2,11 @@
 
 export class RunStateResult {
   data: any;
-  stateType: String;
-  nextStateName: String;
-  isTerminalState: Boolean;
+  stateType: string;
+  nextStateName: string;
+  isTerminalState: boolean;
 
-  constructor(data, stateType, nextStateName, isTerminalState) {
+  constructor(data: object, stateType: string, nextStateName: string, isTerminalState: boolean) {
     RunStateResult.validateArguments(nextStateName, isTerminalState);
 
     this.data = data;
@@ -15,7 +15,7 @@ export class RunStateResult {
     this.isTerminalState = isTerminalState;
   }
 
-  static validateArguments(nextStateName, isTerminalState) {
+  static validateArguments(nextStateName: string, isTerminalState: boolean) {
     if (!nextStateName && !isTerminalState) {
       throw new Error('nextState must be non-null when the state is non-terminal state');
     }

@@ -8,9 +8,9 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -w",
     "tsc": "tsc --target ES6",
-    "eslint": "./node_modules/.bin/eslint --fix src/*.js test/*.js"
+    "eslint": "./node_modules/.bin/eslint --fix test/*.js"
   },
   "main": "./src/main.js",
   "dependencies": {
@@ -18,6 +18,7 @@
     "jsonpath": "^1.0.0"
   },
   "devDependencies": {
+    "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.9.0",

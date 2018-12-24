@@ -1,6 +1,11 @@
 'use strict';
 
 class RunStateResult {
+  data: any;
+  stateType: String;
+  nextStateName: String;
+  isTerminalState: Boolean;
+
   constructor(data, stateType, nextStateName, isTerminalState) {
     RunStateResult.validateArguments(nextStateName, isTerminalState);
 

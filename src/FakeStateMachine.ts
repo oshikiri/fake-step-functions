@@ -1,12 +1,14 @@
 'use strict';
 
 const jsonpath = require('jsonpath');
-const { RunStateResult } = require('./RunStateResult');
 
 const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = x => typeof x === 'object' && x !== null;
 
 class FakeStateMachine {
+  definition: any;
+  fakeResources: any;
+
   constructor(definition, fakeResources) {
     this.definition = definition;
     this.fakeResources = fakeResources;

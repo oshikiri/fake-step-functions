@@ -9,10 +9,12 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "mocha",
+    "tsc": "tsc --target ES6",
     "eslint": "./node_modules/.bin/eslint --fix src/*.js test/*.js"
   },
   "main": "./src/main.js",
   "dependencies": {
+    "@types/node": "^10.12.18",
     "jsonpath": "^1.0.0"
   },
   "devDependencies": {

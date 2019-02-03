@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
-const { expect } = require('chai');
-const { FakeStateMachine } = require('../src/FakeStateMachine');
+import { expect } from 'chai';
+import { FakeStateMachine } from '../src/FakeStateMachine';
 
 describe('FakeStateMachine.run', () => {
   const definition = {

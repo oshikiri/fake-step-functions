@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
       "module": "system",
+      "declaration": true,
       "noImplicitAny": false, // FIXME
       "removeComments": true,
       "preserveConstEnums": true,

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const jsonpath = require('jsonpath');
+import * as jsonpath  from 'jsonpath';
 import { expect } from 'chai';
 
 describe('jsonpath', () => {

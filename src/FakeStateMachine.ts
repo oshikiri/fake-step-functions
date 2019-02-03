@@ -1,6 +1,6 @@
 'use strict';
 
-const jsonpath = require('jsonpath');
+import * as jsonpath  from 'jsonpath';
 import { RunStateResult } from './RunStateResult';
 
 const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO

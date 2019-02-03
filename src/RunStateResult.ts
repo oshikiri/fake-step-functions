@@ -1,6 +1,6 @@
 'use strict';
 
-class RunStateResult {
+export class RunStateResult {
   data: any;
   stateType: String;
   nextStateName: String;
@@ -21,4 +21,3 @@ class RunStateResult {
     }
   }
 }
-exports.RunStateResult = RunStateResult;

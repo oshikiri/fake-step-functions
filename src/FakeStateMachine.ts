@@ -5,7 +5,7 @@ const jsonpath = require('jsonpath');
 const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = x => typeof x === 'object' && x !== null;
 
-class FakeStateMachine {
+export class FakeStateMachine {
   definition: any;
   fakeResources: any;
 
@@ -158,4 +158,3 @@ class FakeStateMachine {
     return resolvedParameters;
   }
 }
-exports.FakeStateMachine = FakeStateMachine;

@@ -8,6 +8,7 @@ before_install:
 
 script:
   - ./node_modules/.bin/eslint src/*.js test/*.js
+  - npm run tsc
   - npm test
 
 cache: npm

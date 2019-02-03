@@ -18,6 +18,7 @@
     "jsonpath": "^1.0.0"
   },
   "devDependencies": {
+    "@types/jsonpath": "^0.2.0",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",

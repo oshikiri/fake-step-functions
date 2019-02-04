@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-      "module": "system",
+      "module": "commonjs",
       "declaration": true,
       "noImplicitAny": false, // FIXME
       "removeComments": true,
       "preserveConstEnums": true,
-      "outFile": "./dist/main.js", // FIXME
+      "outDir": "./dist/",
       "sourceMap": true,
       "target": "es6"
   },

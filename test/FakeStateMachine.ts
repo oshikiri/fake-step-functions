@@ -2,10 +2,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const { FakeStateMachine } = require('../src/FakeStateMachine');
-const { RunStateResult } = require('../src/RunStateResult');
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
+import { FakeStateMachine } from '../src/FakeStateMachine';
+import { RunStateResult } from '../src/RunStateResult';
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);

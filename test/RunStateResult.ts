@@ -2,8 +2,8 @@
 
 'use strict';
 
-const { expect } = require('chai');
-const { RunStateResult } = require('../src/RunStateResult');
+import { expect } from 'chai';
+import { RunStateResult } from '../src/RunStateResult';
 
 describe('RunStateResult', () => {
   it('should be able to compare', () => {

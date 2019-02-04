@@ -1,12 +1,15 @@
 'use strict';
 
-const jsonpath = require('jsonpath');
-const { RunStateResult } = require('./RunStateResult');
+import * as jsonpath  from 'jsonpath';
+import { RunStateResult } from './RunStateResult';
 
 const clone = obj => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = x => typeof x === 'object' && x !== null;
 
-class FakeStateMachine {
+export class FakeStateMachine {
+  definition: any;
+  fakeResources: any;
+
   constructor(definition, fakeResources) {
     this.definition = definition;
     this.fakeResources = fakeResources;
@@ -156,4 +159,3 @@ class FakeStateMachine {
     return resolvedParameters;
   }
 }
-exports.FakeStateMachine = FakeStateMachine;

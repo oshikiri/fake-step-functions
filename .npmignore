@@ -1,0 +1,5 @@
+src/
+test/
+.eslintrc.js
+.travis.yml
+tsconfig.json

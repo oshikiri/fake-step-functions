@@ -1,6 +1,11 @@
 'use strict';
 
-class RunStateResult {
+export class RunStateResult {
+  data: any;
+  stateType: String;
+  nextStateName: String;
+  isTerminalState: Boolean;
+
   constructor(data, stateType, nextStateName, isTerminalState) {
     RunStateResult.validateArguments(nextStateName, isTerminalState);
 
@@ -16,4 +21,3 @@ class RunStateResult {
     }
   }
 }
-exports.RunStateResult = RunStateResult;

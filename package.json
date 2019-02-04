@@ -8,7 +8,7 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "mocha",
+    "test": "./node_modules/.bin/mocha",
     "tsc": "./node_modules/.bin/tsc",
     "eslint": "./node_modules/.bin/eslint --fix test/*.js"
   },

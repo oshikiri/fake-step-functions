@@ -7,7 +7,7 @@ A lightweight testing toolkit for Amazon States Language.
 
 ```js
 const { expect } = require('chai');
-const { FakeStateMachine } = require('../src/FakeStateMachine');
+const { FakeStateMachine } = require('fake-step-functions');
 
 describe('FakeStateMachine.run', () => {
   const definition = {
@@ -37,7 +37,7 @@ describe('FakeStateMachine.run', () => {
     expect(runStateResult.data).to.deep.equal({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 },
-      sum: 7,
+      sum: 7
     });
   });
 });

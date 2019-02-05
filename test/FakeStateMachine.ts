@@ -10,6 +10,9 @@ import { RunStateResult } from '../src/RunStateResult';
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
+const addNumbers = (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2;
+const increment = (i: number) => i + 1;
+
 describe('FakeStateMachine', () => {
   describe('#run()', () => {
     context('when StartAt field does not exist', () => {
@@ -41,7 +44,7 @@ describe('FakeStateMachine', () => {
         }
       };
       const fakeResources = {
-        'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
+        'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
       };
       const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
@@ -93,7 +96,7 @@ describe('FakeStateMachine', () => {
           }
         };
         const fakeResources = {
-          'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
+          'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
         };
         const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
@@ -138,7 +141,7 @@ describe('FakeStateMachine', () => {
           }
         };
         const fakeResources = {
-          'arn:aws:lambda:us-east-1:123456789012:function:Increment': i => i + 1,
+          'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
         };
         const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
         expect(await fakeStateMachine.run({
@@ -215,7 +218,7 @@ describe('FakeStateMachine', () => {
       }
     };
     const fakeStateMachine = new FakeStateMachine(definition, {
-      'arn:aws:lambda:us-east-1:123456789012:function:Increment': i => i + 1
+      'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
     });
     context('with start and end', () => {
       it('should run while the condition fulfills', async () => {
@@ -459,7 +462,7 @@ describe('FakeStateMachine', () => {
             testCases.forEach((testCaseRow) => {
               const [inputValue, expectedNextStateName] = testCaseRow;
               context(`when condition=${condition} and input=${inputValue}`, () => {
-                const choice = {
+                const choice: any = {
                   Variable: '$.condition',
                   Next: 'NextState',
                 };
@@ -607,7 +610,7 @@ describe('FakeStateMachine', () => {
         });
         context('when the InputPath is null', () => {
           it('should fill outputPath using {}', async () => {
-            const definition = {
+            const definition: any = {
               StartAt: 'Start',
               States: {
                 Target: {
@@ -689,10 +692,10 @@ describe('FakeStateMachine', () => {
 
     context('when the state has `"Type": "Task"`', () => {
       const fakeResources = {
-        'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2,
-        'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async numbers => numbers.val1 + numbers.val2,
-        'arn:aws:lambda:us-east-1:123456789012:function:Double': n => 2 * n,
-        'arn:aws:lambda:us-east-1:123456789012:function:Identity': x => x,
+        'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
+        'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2,
+        'arn:aws:lambda:us-east-1:123456789012:function:Double': (n: number) => 2 * n,
+        'arn:aws:lambda:us-east-1:123456789012:function:Identity': (x: any) => x,
       };
       context('when there is an InputPath field', () => {
         it('should pass the specified subset to the Resource', async () => {
@@ -891,9 +894,9 @@ describe('FakeStateMachine', () => {
               }
             }
           };
-          let input;
+          let input: any;
           const fakeStateMachine = new FakeStateMachine(definition, {
-            'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (event) => {
+            'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (event: any) => {
               input = event;
               return event.input.val1 + event.input.val2;
             }

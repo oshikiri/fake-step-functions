@@ -2,7 +2,7 @@
   "compilerOptions": {
       "module": "commonjs",
       "declaration": true,
-      "noImplicitAny": false, // FIXME
+      "noImplicitAny": true,
       "removeComments": true,
       "preserveConstEnums": true,
       "outDir": "./dist/",

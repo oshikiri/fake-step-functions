@@ -18,7 +18,7 @@ describe('FakeStateMachine.run', () => {
     }
   };
   const fakeResources = {
-    'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2
+    'arn:aws:lambda:us-east-1:123456789012:function:Add': (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2
   };
   const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 

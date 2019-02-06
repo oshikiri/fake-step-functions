@@ -6,6 +6,14 @@
     "type": "git",
     "url": "https://github.com/oshikiri/fake-step-functions"
   },
+  "keywords": [
+    "aws",
+    "stepfunctions",
+    "step functions",
+    "amazon states language",
+    "test",
+    "testing"
+  ],
   "license": "Apache-2.0",
   "scripts": {
     "test": "./node_modules/.bin/mocha -r ts-node/register test/*.ts",

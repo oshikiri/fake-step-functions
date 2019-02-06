@@ -1,9 +1,8 @@
-fake-step-functions
-=========================
-
-[![Build Status](https://travis-ci.org/oshikiri/fake-step-functions.svg?branch=master)](https://travis-ci.org/oshikiri/fake-step-functions) [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
+# fake-step-functions
 
 A lightweight testing toolkit for Amazon States Language.
+
+[![Build Status](https://travis-ci.org/oshikiri/fake-step-functions.svg?branch=master)](https://travis-ci.org/oshikiri/fake-step-functions) [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
 
 ```js
 const { expect } = require('chai');

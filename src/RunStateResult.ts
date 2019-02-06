@@ -1,7 +1,7 @@
 'use strict';
 
 export class RunStateResult {
-  data: any;
+  data: object;
   stateType: string;
   nextStateName: string;
   isTerminalState: boolean;

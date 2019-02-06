@@ -3,14 +3,28 @@
 import * as jsonpath  from 'jsonpath';
 import { RunStateResult } from './RunStateResult';
 
+interface Definition {
+  StartAt?: string,
+  States: any,
+};
+interface State {
+  Type: string,
+  Parameters?: Object,
+  Input?: Object,
+  InputPath?: string | null,
+  Result?: Object,
+  ResultPath?: string | null,
+};
+type Resource = { [key: string]: (arg: any) => any };
+
 const clone = (obj: object) => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = (x: object) => typeof x === 'object' && x !== null;
 
 export class FakeStateMachine {
-  definition: any;
-  fakeResources: any;
+  definition: Definition;
+  fakeResources: Resource;
 
-  constructor(definition: object, fakeResources: object) {
+  constructor(definition: Definition, fakeResources: Resource) {
     this.definition = definition;
     this.fakeResources = fakeResources;
   }
@@ -44,7 +58,7 @@ export class FakeStateMachine {
 
   async runState(_data: object, stateName: string): Promise<RunStateResult> {
     const data = clone(_data);
-    const state = this.definition.States[stateName];
+    const state = this.definition.States[stateName.toString()];
     if (state === undefined) {
       throw new Error(`the state ${stateName} does not exists`);
     }
@@ -88,19 +102,19 @@ export class FakeStateMachine {
     return new RunStateResult(data, stateType, nextState, isTermialState);
   }
 
-  static async runStateTask(state: object, data: object, resource: any): Promise<object> {
-    const dataInputPath = FakeStateMachine.inputData(state, data);
+  static async runStateTask(state: State, data: object, resource: (arg: any) => any): Promise<object> {
+    const dataInputPath: any = FakeStateMachine.inputData(state, data);
     const result = await resource(dataInputPath);
     if (result === undefined) return undefined;
     return clone(result);
   }
 
-  static runStatePass(state: any, data: object): object {
+  static runStatePass(state: State, data: object): object {
     const dataInputPath = FakeStateMachine.inputData(state, data);
     return clone(state.Input || dataInputPath); // TODO: priority?
   }
 
-  static runStateChoice(state: any, data: object): string {
+  static runStateChoice(state: {Choices: any[], Default: any}, data: {choice: any}): string {
     const matched = state.Choices.find((choice: any) => {
       const input = jsonpath.value(data, choice.Variable);
       return (
@@ -118,7 +132,7 @@ export class FakeStateMachine {
     return state.Default;
   }
 
-  static inputData(state: any, data: object): object {
+  static inputData(state: State, data: object): object {
     if (state.Type === 'Pass') {
       if (state.Result !== undefined) return state.Result; // TODO: priority?
     } else if (state.Type === 'Task') {

@@ -1,20 +1,20 @@
 'use strict';
 
-import * as jsonpath  from 'jsonpath';
+import * as jsonpath from 'jsonpath';
 import { RunStateResult } from './RunStateResult';
 
 interface Definition {
-  StartAt?: string,
-  States: any,
-};
+  StartAt?: string;
+  States: any;
+}
 interface State {
-  Type: string,
-  Parameters?: Object,
-  Input?: Object,
-  InputPath?: string | null,
-  Result?: Object,
-  ResultPath?: string | null,
-};
+  Type: string;
+  Parameters?: Object;
+  Input?: Object;
+  InputPath?: string | null;
+  Result?: Object;
+  ResultPath?: string | null;
+}
 type Resource = { [key: string]: (arg: any) => any };
 
 const clone = (obj: object) => JSON.parse(JSON.stringify(obj)); // TODO
@@ -37,7 +37,11 @@ export class FakeStateMachine {
     return this.runPartial(input, startAt, null);
   }
 
-  async runPartial(data: object, current: string, end: string): Promise<RunStateResult> {
+  async runPartial(
+    data: object,
+    current: string,
+    end: string
+  ): Promise<RunStateResult> {
     const result = await this.runState(data, current);
     if (result.isTerminalState || current === end) return result;
     return this.runPartial(result.data, result.nextStateName, end);
@@ -48,10 +52,11 @@ export class FakeStateMachine {
     const condition = _condition;
     const result = await this.runState(data, condition.start);
     if (
-      result.isTerminalState
-      || condition.start === condition.end
-      || !result.nextStateName.match(condition.regex)
-    ) return result;
+      result.isTerminalState ||
+      condition.start === condition.end ||
+      !result.nextStateName.match(condition.regex)
+    )
+      return result;
     condition.start = result.nextStateName;
     return this.runCondition(result.data, condition);
   }
@@ -71,7 +76,11 @@ export class FakeStateMachine {
           throw new Error(`Unknown resource: ${state.Resource}`);
         }
         const resource = this.fakeResources[state.Resource];
-        const newValue = await FakeStateMachine.runStateTask(state, data, resource);
+        const newValue = await FakeStateMachine.runStateTask(
+          state,
+          data,
+          resource
+        );
         if (state.ResultPath === undefined) {
           Object.assign(data, newValue);
         } else {
@@ -97,12 +106,17 @@ export class FakeStateMachine {
       default:
         throw new Error(`Invalid Type: ${stateType}`);
     }
-    const isTermialState = state.End === true || stateType === 'Succeed' || stateType === 'Fail';
+    const isTermialState =
+      state.End === true || stateType === 'Succeed' || stateType === 'Fail';
 
     return new RunStateResult(data, stateType, nextState, isTermialState);
   }
 
-  static async runStateTask(state: State, data: object, resource: (arg: any) => any): Promise<object> {
+  static async runStateTask(
+    state: State,
+    data: object,
+    resource: (arg: any) => any
+  ): Promise<object> {
     const dataInputPath: any = FakeStateMachine.inputData(state, data);
     const result = await resource(dataInputPath);
     if (result === undefined) return undefined;
@@ -114,17 +128,22 @@ export class FakeStateMachine {
     return clone(state.Input || dataInputPath); // TODO: priority?
   }
 
-  static runStateChoice(state: {Choices: any[], Default: any}, data: {choice: any}): string {
+  static runStateChoice(
+    state: { Choices: any[]; Default: any },
+    data: { choice: any }
+  ): string {
     const matched = state.Choices.find((choice: any) => {
       const input = jsonpath.value(data, choice.Variable);
       return (
-        (choice.StringEquals && input === choice.StringEquals)
-        || (choice.NumericEquals && input === choice.NumericEquals)
-        || (choice.NumericLessThan && input < choice.NumericLessThan)
-        || (choice.NumericGreaterThan && input > choice.NumericGreaterThan)
-        || (choice.NumericLessThanEquals && input <= choice.NumericLessThanEquals)
-        || (choice.NumericGreaterThanEquals && input >= choice.NumericGreaterThanEquals)
-        || (choice.BooleanEquals && input === choice.BooleanEquals)
+        (choice.StringEquals && input === choice.StringEquals) ||
+        (choice.NumericEquals && input === choice.NumericEquals) ||
+        (choice.NumericLessThan && input < choice.NumericLessThan) ||
+        (choice.NumericGreaterThan && input > choice.NumericGreaterThan) ||
+        (choice.NumericLessThanEquals &&
+          input <= choice.NumericLessThanEquals) ||
+        (choice.NumericGreaterThanEquals &&
+          input >= choice.NumericGreaterThanEquals) ||
+        (choice.BooleanEquals && input === choice.BooleanEquals)
       );
     });
 

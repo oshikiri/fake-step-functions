@@ -2,7 +2,7 @@
 
 'use strict';
 
-import * as jsonpath  from 'jsonpath';
+import * as jsonpath from 'jsonpath';
 import { expect } from 'chai';
 
 describe('jsonpath', () => {
@@ -36,7 +36,7 @@ describe('jsonpath', () => {
     });
     it.skip('should query using range $.a[0,1]', () => {
       const data = {
-        a: [1, 2, 3, 4]
+        a: [1, 2, 3, 4],
       };
       const result = jsonpath.value(data, '$.a[0,1]');
       expect(result).to.equal([1, 2]);

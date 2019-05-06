@@ -13,19 +13,22 @@ describe('FakeStateMachine.run', () => {
         Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
         InputPath: '$.numbers',
         ResultPath: '$.sum',
-        End: true
-      }
-    }
+        End: true,
+      },
+    },
   };
   const fakeResources = {
-    'arn:aws:lambda:us-east-1:123456789012:function:Add': (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2
+    'arn:aws:lambda:us-east-1:123456789012:function:Add': (numbers: {
+      val1: number;
+      val2: number;
+    }) => numbers.val1 + numbers.val2,
   };
   const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
   it('should execute the state machine with fakeResource', async () => {
     const runStateResult = await fakeStateMachine.run({
       title: 'Numbers to add',
-      numbers: { val1: 3, val2: 4 }
+      numbers: { val1: 3, val2: 4 },
     });
 
     expect(runStateResult.data).to.deep.equal({

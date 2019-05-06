@@ -3,5 +3,5 @@ import { RunStateResult } from './RunStateResult';
 
 export = {
   FakeStateMachine,
-  RunStateResult
+  RunStateResult,
 };

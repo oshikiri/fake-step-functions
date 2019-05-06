@@ -14,9 +14,10 @@ describe('RunStateResult', () => {
 
   context('when the nextState is null and isTerminalState = false', () => {
     it('should throw error', () => {
-      expect(
-        () => new RunStateResult({}, 'Task', null, false)
-      ).to.throw(Error, 'nextState must be non-null when the state is non-terminal state');
+      expect(() => new RunStateResult({}, 'Task', null, false)).to.throw(
+        Error,
+        'nextState must be non-null when the state is non-terminal state'
+      );
     });
   });
 });

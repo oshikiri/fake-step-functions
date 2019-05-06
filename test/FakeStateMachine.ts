@@ -10,7 +10,8 @@ import { RunStateResult } from '../src/RunStateResult';
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
-const addNumbers = (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2;
+const addNumbers = (numbers: { val1: number; val2: number }) =>
+  numbers.val1 + numbers.val2;
 const increment = (i: number) => i + 1;
 
 describe('FakeStateMachine', () => {
@@ -20,13 +21,15 @@ describe('FakeStateMachine', () => {
         const definition = {
           States: {
             Done: {
-              Type: 'Succeed'
-            }
-          }
+              Type: 'Succeed',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
-        return expect(fakeStateMachine.run({}))
-          .to.rejectedWith(Error, 'StartAt does not exist');
+        return expect(fakeStateMachine.run({})).to.rejectedWith(
+          Error,
+          'StartAt does not exist'
+        );
       });
     });
 
@@ -39,23 +42,32 @@ describe('FakeStateMachine', () => {
             Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
             InputPath: '$.numbers',
             ResultPath: '$.sum',
-            End: true
-          }
-        }
+            End: true,
+          },
+        },
       };
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
       };
       const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
-      expect(await fakeStateMachine.run({
-        title: 'Numbers to add',
-        numbers: { val1: 3, val2: 4 }
-      })).to.deep.equal(new RunStateResult({
-        title: 'Numbers to add',
-        numbers: { val1: 3, val2: 4 },
-        sum: 7
-      }, 'Task', null, true));
+      expect(
+        await fakeStateMachine.run({
+          title: 'Numbers to add',
+          numbers: { val1: 3, val2: 4 },
+        })
+      ).to.deep.equal(
+        new RunStateResult(
+          {
+            title: 'Numbers to add',
+            numbers: { val1: 3, val2: 4 },
+            sum: 7,
+          },
+          'Task',
+          null,
+          true
+        )
+      );
     });
 
     context('when there is invalid Type String', () => {
@@ -64,14 +76,16 @@ describe('FakeStateMachine', () => {
           StartAt: 'Done',
           States: {
             Done: {
-              Type: 'UnknownType'
-            }
-          }
+              Type: 'UnknownType',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
-        return expect(fakeStateMachine.run({}))
-          .to.rejectedWith(Error, 'Invalid Type: UnknownType');
+        return expect(fakeStateMachine.run({})).to.rejectedWith(
+          Error,
+          'Invalid Type: UnknownType'
+        );
       });
     });
     context('when the state machine has two states', () => {
@@ -84,31 +98,43 @@ describe('FakeStateMachine', () => {
               Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
               InputPath: '$.numbers',
               ResultPath: '$.sum1',
-              Next: 'Add2'
+              Next: 'Add2',
             },
             Add2: {
               Type: 'Task',
               Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
               InputPath: '$.numbers',
               ResultPath: '$.sum2',
-              End: true
-            }
-          }
+              End: true,
+            },
+          },
         };
         const fakeResources = {
           'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
         };
-        const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+        const fakeStateMachine = new FakeStateMachine(
+          definition,
+          fakeResources
+        );
 
-        expect(await fakeStateMachine.run({
-          title: 'Numbers to add',
-          numbers: { val1: 3, val2: 4 }
-        })).to.deep.equal(new RunStateResult({
-          title: 'Numbers to add',
-          numbers: { val1: 3, val2: 4 },
-          sum1: 7,
-          sum2: 7,
-        }, 'Task', null, true));
+        expect(
+          await fakeStateMachine.run({
+            title: 'Numbers to add',
+            numbers: { val1: 3, val2: 4 },
+          })
+        ).to.deep.equal(
+          new RunStateResult(
+            {
+              title: 'Numbers to add',
+              numbers: { val1: 3, val2: 4 },
+              sum1: 7,
+              sum2: 7,
+            },
+            'Task',
+            null,
+            true
+          )
+        );
       });
     });
 
@@ -124,31 +150,44 @@ describe('FakeStateMachine', () => {
                   Variable: '$.i',
                   NumericEquals: 3,
                   Next: 'Done',
-                }
+                },
               ],
               Default: 'Increment',
             },
             Increment: {
               Type: 'Task',
-              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Increment',
+              Resource:
+                'arn:aws:lambda:us-east-1:123456789012:function:Increment',
               InputPath: '$.i',
               ResultPath: '$.i',
-              Next: 'IncrementOrEnd'
+              Next: 'IncrementOrEnd',
             },
             Done: {
               Type: 'Succeed',
-            }
-          }
+            },
+          },
         };
         const fakeResources = {
           'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
         };
-        const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
-        expect(await fakeStateMachine.run({
-          i: 0
-        })).to.deep.equal(new RunStateResult({
-          i: 3
-        }, 'Succeed', null, true));
+        const fakeStateMachine = new FakeStateMachine(
+          definition,
+          fakeResources
+        );
+        expect(
+          await fakeStateMachine.run({
+            i: 0,
+          })
+        ).to.deep.equal(
+          new RunStateResult(
+            {
+              i: 3,
+            },
+            'Succeed',
+            null,
+            true
+          )
+        );
       });
     });
 
@@ -161,26 +200,35 @@ describe('FakeStateMachine', () => {
               Type: 'Pass',
               InputPath: '$.a1',
               ResultPath: '$.a2',
-              Next: 'Increment'
+              Next: 'Increment',
             },
             Increment: {
               Type: 'Pass',
               Input: 2,
               ResultPath: '$.a2.b',
-              Next: 'Done'
+              Next: 'Done',
             },
             Done: {
-              Type: 'Succeed'
-            }
-          }
+              Type: 'Succeed',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
-        expect(await fakeStateMachine.run({
-          a1: { b: 1 }
-        })).to.deep.equal(new RunStateResult({
-          a1: { b: 1 },
-          a2: { b: 2 }
-        }, 'Succeed', null, true));
+        expect(
+          await fakeStateMachine.run({
+            a1: { b: 1 },
+          })
+        ).to.deep.equal(
+          new RunStateResult(
+            {
+              a1: { b: 1 },
+              a2: { b: 2 },
+            },
+            'Succeed',
+            null,
+            true
+          )
+        );
       });
     });
   });
@@ -203,11 +251,13 @@ describe('FakeStateMachine', () => {
         },
         'main.check': {
           Type: 'Choice',
-          Choices: [{
-            Variable: '$.i',
-            NumericEquals: 3,
-            Next: 'hoge',
-          }],
+          Choices: [
+            {
+              Variable: '$.i',
+              NumericEquals: 3,
+              Next: 'hoge',
+            },
+          ],
           Default: 'main.increment',
         },
         hoge: {
@@ -215,7 +265,7 @@ describe('FakeStateMachine', () => {
           Input: -1,
           ResultPath: '$.i',
         },
-      }
+      },
     };
     const fakeStateMachine = new FakeStateMachine(definition, {
       'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
@@ -223,7 +273,10 @@ describe('FakeStateMachine', () => {
     context('with start and end', () => {
       it('should run while the condition fulfills', async () => {
         expect(
-          await fakeStateMachine.runCondition({}, { start: 'main.initialize', end: 'main.check' })
+          await fakeStateMachine.runCondition(
+            {},
+            { start: 'main.initialize', end: 'main.check' }
+          )
         ).to.deep.equal(
           new RunStateResult({ i: 1 }, 'Choice', 'main.increment', false)
         );
@@ -232,10 +285,11 @@ describe('FakeStateMachine', () => {
     context('with start and regex', () => {
       it('should run while the condition fulfills', async () => {
         expect(
-          await fakeStateMachine.runCondition({}, { start: 'main.initialize', regex: /main\.\w+/ })
-        ).to.deep.equal(
-          new RunStateResult({ i: 3 }, 'Choice', 'hoge', false)
-        );
+          await fakeStateMachine.runCondition(
+            {},
+            { start: 'main.initialize', regex: /main\.\w+/ }
+          )
+        ).to.deep.equal(new RunStateResult({ i: 3 }, 'Choice', 'hoge', false));
       });
     });
   });
@@ -254,34 +308,45 @@ describe('FakeStateMachine', () => {
           Input: 'b',
           ResultPath: '$.p1',
           Type: 'Pass',
-          Next: 'Pass2'
+          Next: 'Pass2',
         },
         Pass2: {
           Input: 'c',
           ResultPath: '$.p2',
           Type: 'Pass',
-          Next: 'Pass3'
+          Next: 'Pass3',
         },
         Pass3: {
           Input: 'd',
           ResultPath: '$.p3',
           Type: 'Pass',
-          Next: 'Done'
+          Next: 'Done',
         },
         Done: {
-          Type: 'Succeed'
-        }
-      }
+          Type: 'Succeed',
+        },
+      },
     };
     const fakeStateMachine = new FakeStateMachine(definition, {});
     it('should execute states between the start state and the end state', async () => {
       expect(
-        await fakeStateMachine.runPartial({ title: 'run-partial' }, 'Pass1', 'Pass2')
-      ).to.deep.equal(new RunStateResult({
-        title: 'run-partial',
-        p1: 'b',
-        p2: 'c',
-      }, 'Pass', 'Pass3', false));
+        await fakeStateMachine.runPartial(
+          { title: 'run-partial' },
+          'Pass1',
+          'Pass2'
+        )
+      ).to.deep.equal(
+        new RunStateResult(
+          {
+            title: 'run-partial',
+            p1: 'b',
+            p2: 'c',
+          },
+          'Pass',
+          'Pass3',
+          false
+        )
+      );
     });
   });
 
@@ -294,14 +359,19 @@ describe('FakeStateMachine', () => {
             Target2: {
               Input: 'a',
               ResultPath: '$.a2',
-              Type: 'Pass'
-            }
-          }
+              Type: 'Pass',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
-        return expect(fakeStateMachine.runState({
-          a1: 123
-        }, 'Target')).to.rejectedWith(Error, 'the state Target does not exists');
+        return expect(
+          fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )
+        ).to.rejectedWith(Error, 'the state Target does not exists');
       });
     });
     context('when the state has `"End": true`', () => {
@@ -313,15 +383,18 @@ describe('FakeStateMachine', () => {
               Input: 'a',
               ResultPath: '$.a2',
               Type: 'Pass',
-              End: true
-            }
-          }
+              End: true,
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
         return expect(
-          (await fakeStateMachine.runState({
-            a1: 123
-          }, 'Target')).isTerminalState
+          (await fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )).isTerminalState
         ).to.be.true;
       });
     });
@@ -335,37 +408,51 @@ describe('FakeStateMachine', () => {
               Input: 'a',
               ResultPath: '$.a2',
               Type: 'Pass',
-              Next: 'NextState'
-            }
-          }
+              Next: 'NextState',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
         expect(
-          (await fakeStateMachine.runState({
-            a1: 123
-          }, 'Target')).nextStateName
+          (await fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )).nextStateName
         ).to.equal('NextState');
       });
     });
 
-    context('when the state does not contain "Next" field and does not have `"End": true`', () => {
-      it('should throw an error', () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Input: 'a',
-              ResultPath: '$.a2',
-              Type: 'Pass'
-            }
-          }
-        };
-        const fakeStateMachine = new FakeStateMachine(definition, {});
-        return expect(fakeStateMachine.runState({
-          a1: 123
-        }, 'Target')).be.rejectedWith(Error, 'nextState must be non-null when the state is non-terminal state');
-      });
-    });
+    context(
+      'when the state does not contain "Next" field and does not have `"End": true`',
+      () => {
+        it('should throw an error', () => {
+          const definition = {
+            StartAt: 'Start',
+            States: {
+              Target: {
+                Input: 'a',
+                ResultPath: '$.a2',
+                Type: 'Pass',
+              },
+            },
+          };
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          return expect(
+            fakeStateMachine.runState(
+              {
+                a1: 123,
+              },
+              'Target'
+            )
+          ).be.rejectedWith(
+            Error,
+            'nextState must be non-null when the state is non-terminal state'
+          );
+        });
+      }
+    );
 
     context('when the state has `"Type": "Succeed"`', () => {
       it('should not change the state and return it', async () => {
@@ -373,9 +460,9 @@ describe('FakeStateMachine', () => {
           StartAt: 'Start',
           States: {
             Target: {
-              Type: 'Succeed'
-            }
-          }
+              Type: 'Succeed',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
@@ -390,9 +477,9 @@ describe('FakeStateMachine', () => {
           StartAt: 'Start',
           States: {
             Target: {
-              Type: 'Fail'
-            }
-          }
+              Type: 'Fail',
+            },
+          },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
@@ -407,18 +494,12 @@ describe('FakeStateMachine', () => {
           {
             conditionType: 'StringEquals',
             condition: 'abc',
-            testCases: [
-              ['ab', 'DefaultState'],
-              ['abc', 'NextState'],
-            ],
+            testCases: [['ab', 'DefaultState'], ['abc', 'NextState']],
           },
           {
             conditionType: 'NumericEquals',
             condition: 5,
-            testCases: [
-              [5.0, 'NextState'],
-              [5.1, 'DefaultState'],
-            ],
+            testCases: [[5.0, 'NextState'], [5.1, 'DefaultState']],
           },
           {
             conditionType: 'NumericLessThan',
@@ -450,42 +531,53 @@ describe('FakeStateMachine', () => {
           {
             conditionType: 'BooleanEquals',
             condition: true,
-            testCases: [
-              [false, 'DefaultState'],
-              [true, 'NextState'],
-            ],
+            testCases: [[false, 'DefaultState'], [true, 'NextState']],
           },
         ];
 
         conditions.forEach(({ conditionType, condition, testCases }) => {
           context(`with ${conditionType}`, () => {
-            testCases.forEach((testCaseRow) => {
+            testCases.forEach(testCaseRow => {
               const [inputValue, expectedNextStateName] = testCaseRow;
-              context(`when condition=${condition} and input=${inputValue}`, () => {
-                const choice: any = {
-                  Variable: '$.condition',
-                  Next: 'NextState',
-                };
-                choice[conditionType] = condition;
-                const definition = {
-                  States: {
-                    Choices: {
-                      Type: 'Choice',
-                      Choices: [choice],
-                      Default: 'DefaultState'
-                    }
-                  }
-                };
+              context(
+                `when condition=${condition} and input=${inputValue}`,
+                () => {
+                  const choice: any = {
+                    Variable: '$.condition',
+                    Next: 'NextState',
+                  };
+                  choice[conditionType] = condition;
+                  const definition = {
+                    States: {
+                      Choices: {
+                        Type: 'Choice',
+                        Choices: [choice],
+                        Default: 'DefaultState',
+                      },
+                    },
+                  };
 
-                it(`the next state should be ${expectedNextStateName}`, async () => {
-                  const fakeStateMachine = new FakeStateMachine(definition, {});
-                  expect(
-                    await fakeStateMachine.runState({ condition: inputValue }, 'Choices')
-                  ).to.deep.equal(
-                    new RunStateResult({ condition: inputValue }, 'Choice', expectedNextStateName, false)
-                  );
-                });
-              });
+                  it(`the next state should be ${expectedNextStateName}`, async () => {
+                    const fakeStateMachine = new FakeStateMachine(
+                      definition,
+                      {}
+                    );
+                    expect(
+                      await fakeStateMachine.runState(
+                        { condition: inputValue },
+                        'Choices'
+                      )
+                    ).to.deep.equal(
+                      new RunStateResult(
+                        { condition: inputValue },
+                        'Choice',
+                        expectedNextStateName,
+                        false
+                      )
+                    );
+                  });
+                }
+              );
             });
           });
         });
@@ -517,20 +609,30 @@ describe('FakeStateMachine', () => {
                     Next: 'NextState2',
                   },
                 ],
-                Default: 'DefaultState'
-              }
-            }
+                Default: 'DefaultState',
+              },
+            },
           };
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState({
-              condition1: false,
-              condition2: true,
-            }, 'Choices')
-          ).to.deep.equal(new RunStateResult({
-            condition1: false,
-            condition2: true,
-          }, 'Choice', 'NextState2', false));
+            await fakeStateMachine.runState(
+              {
+                condition1: false,
+                condition2: true,
+              },
+              'Choices'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                condition1: false,
+                condition2: true,
+              },
+              'Choice',
+              'NextState2',
+              false
+            )
+          );
         });
       });
     });
@@ -545,19 +647,29 @@ describe('FakeStateMachine', () => {
                 Input: 'a',
                 ResultPath: '$.a2',
                 Type: 'Pass',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState({
-              a1: 123
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            a1: 123,
-            a2: 'a'
-          }, 'Pass', 'NextState', false));
+            await fakeStateMachine.runState(
+              {
+                a1: 123,
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                a1: 123,
+                a2: 'a',
+              },
+              'Pass',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the state has an InputPath field', () => {
@@ -569,19 +681,29 @@ describe('FakeStateMachine', () => {
                 Target: {
                   ResultPath: '$.a2',
                   Type: 'Pass',
-                  Next: 'NextState'
-                }
-              }
+                  Next: 'NextState',
+                },
+              },
             };
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
-              await fakeStateMachine.runState({
-                a1: 123
-              }, 'Target')
-            ).to.deep.equal(new RunStateResult({
-              a1: 123,
-              a2: { a1: 123 }
-            }, 'Pass', 'NextState', false));
+              await fakeStateMachine.runState(
+                {
+                  a1: 123,
+                },
+                'Target'
+              )
+            ).to.deep.equal(
+              new RunStateResult(
+                {
+                  a1: 123,
+                  a2: { a1: 123 },
+                },
+                'Pass',
+                'NextState',
+                false
+              )
+            );
           });
         });
         context('when the state contains Result', () => {
@@ -593,19 +715,29 @@ describe('FakeStateMachine', () => {
                   Result: 'a',
                   ResultPath: '$.a2',
                   Type: 'Pass',
-                  Next: 'NextState'
-                }
-              }
+                  Next: 'NextState',
+                },
+              },
             };
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
-              await fakeStateMachine.runState({
-                a1: 123
-              }, 'Target')
-            ).to.deep.equal(new RunStateResult({
-              a1: 123,
-              a2: 'a'
-            }, 'Pass', 'NextState', false));
+              await fakeStateMachine.runState(
+                {
+                  a1: 123,
+                },
+                'Target'
+              )
+            ).to.deep.equal(
+              new RunStateResult(
+                {
+                  a1: 123,
+                  a2: 'a',
+                },
+                'Pass',
+                'NextState',
+                false
+              )
+            );
           });
         });
         context('when the InputPath is null', () => {
@@ -617,19 +749,29 @@ describe('FakeStateMachine', () => {
                   InputPath: null,
                   ResultPath: '$.a2',
                   Type: 'Pass',
-                  Next: 'NextState'
-                }
-              }
+                  Next: 'NextState',
+                },
+              },
             };
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
-              await fakeStateMachine.runState({
-                a1: 123
-              }, 'Target')
-            ).to.deep.equal(new RunStateResult({
-              a1: 123,
-              a2: {}
-            }, 'Pass', 'NextState', false));
+              await fakeStateMachine.runState(
+                {
+                  a1: 123,
+                },
+                'Target'
+              )
+            ).to.deep.equal(
+              new RunStateResult(
+                {
+                  a1: 123,
+                  a2: {},
+                },
+                'Pass',
+                'NextState',
+                false
+              )
+            );
           });
         });
         context('when the InputPath is non-null', () => {
@@ -641,19 +783,29 @@ describe('FakeStateMachine', () => {
                   InputPath: '$.a1',
                   ResultPath: '$.a2',
                   Type: 'Pass',
-                  Next: 'NextState'
-                }
-              }
+                  Next: 'NextState',
+                },
+              },
             };
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
-              await fakeStateMachine.runState({
-                a1: 123
-              }, 'Target')
-            ).to.deep.equal(new RunStateResult({
-              a1: 123,
-              a2: 123
-            }, 'Pass', 'NextState', false));
+              await fakeStateMachine.runState(
+                {
+                  a1: 123,
+                },
+                'Target'
+              )
+            ).to.deep.equal(
+              new RunStateResult(
+                {
+                  a1: 123,
+                  a2: 123,
+                },
+                'Pass',
+                'NextState',
+                false
+              )
+            );
           });
         });
       });
@@ -666,26 +818,36 @@ describe('FakeStateMachine', () => {
                 InputPath: '$.a.b2.c1',
                 ResultPath: '$.a.b3.c2',
                 Type: 'Pass',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState({
-              a: {
-                b1: 'a-b1',
-                b2: { c1: 'a-b2-c1' },
-                b3: { c1: 'a-b3-c1' }
-              }
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            a: {
-              b1: 'a-b1',
-              b2: { c1: 'a-b2-c1' },
-              b3: { c1: 'a-b3-c1', c2: 'a-b2-c1' }
-            }
-          }, 'Pass', 'NextState', false));
+            await fakeStateMachine.runState(
+              {
+                a: {
+                  b1: 'a-b1',
+                  b2: { c1: 'a-b2-c1' },
+                  b3: { c1: 'a-b3-c1' },
+                },
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                a: {
+                  b1: 'a-b1',
+                  b2: { c1: 'a-b2-c1' },
+                  b3: { c1: 'a-b3-c1', c2: 'a-b2-c1' },
+                },
+              },
+              'Pass',
+              'NextState',
+              false
+            )
+          );
         });
       });
     });
@@ -693,9 +855,14 @@ describe('FakeStateMachine', () => {
     context('when the state has `"Type": "Task"`', () => {
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
-        'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async (numbers: {val1: number, val2: number}) => numbers.val1 + numbers.val2,
-        'arn:aws:lambda:us-east-1:123456789012:function:Double': (n: number) => 2 * n,
-        'arn:aws:lambda:us-east-1:123456789012:function:Identity': (x: any) => x,
+        'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async (numbers: {
+          val1: number;
+          val2: number;
+        }) => numbers.val1 + numbers.val2,
+        'arn:aws:lambda:us-east-1:123456789012:function:Double': (n: number) =>
+          2 * n,
+        'arn:aws:lambda:us-east-1:123456789012:function:Identity': (x: any) =>
+          x,
       };
       context('when there is an InputPath field', () => {
         it('should pass the specified subset to the Resource', async () => {
@@ -707,19 +874,32 @@ describe('FakeStateMachine', () => {
                 Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
                 ResultPath: '$.sum',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
           expect(
-            await fakeStateMachine.runState({
-              numbers: { val1: 3, val2: 4 }
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            numbers: { val1: 3, val2: 4 },
-            sum: 7
-          }, 'Task', 'NextState', false));
+            await fakeStateMachine.runState(
+              {
+                numbers: { val1: 3, val2: 4 },
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                numbers: { val1: 3, val2: 4 },
+                sum: 7,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the fakeResource is an async function', () => {
@@ -729,22 +909,36 @@ describe('FakeStateMachine', () => {
             States: {
               Target: {
                 InputPath: '$.numbers',
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:AddAsync',
+                Resource:
+                  'arn:aws:lambda:us-east-1:123456789012:function:AddAsync',
                 ResultPath: '$.sum',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
           expect(
-            await fakeStateMachine.runState({
-              numbers: { val1: 3, val2: 4 }
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            numbers: { val1: 3, val2: 4 },
-            sum: 7
-          }, 'Task', 'NextState', false));
+            await fakeStateMachine.runState(
+              {
+                numbers: { val1: 3, val2: 4 },
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                numbers: { val1: 3, val2: 4 },
+                sum: 7,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the InputPath points a path like $.a.b3.c2', () => {
@@ -757,27 +951,40 @@ describe('FakeStateMachine', () => {
                 Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
                 ResultPath: '$.sum',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
-          };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
-          expect(
-            await fakeStateMachine.runState({
-              a: {
-                b3: {
-                  c2: { val1: 3, val2: 4 }
-                }
-              }
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            a: {
-              b3: {
-                c2: { val1: 3, val2: 4 }
-              }
+                Next: 'NextState',
+              },
             },
-            sum: 7
-          }, 'Task', 'NextState', false));
+          };
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
+          expect(
+            await fakeStateMachine.runState(
+              {
+                a: {
+                  b3: {
+                    c2: { val1: 3, val2: 4 },
+                  },
+                },
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                a: {
+                  b3: {
+                    c2: { val1: 3, val2: 4 },
+                  },
+                },
+                sum: 7,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the Task state is called without InputPath', () => {
@@ -789,21 +996,34 @@ describe('FakeStateMachine', () => {
                 Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
                 ResultPath: '$.sum',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
           expect(
-            await fakeStateMachine.runState({
-              val1: 3,
-              val2: 4,
-            }, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            val1: 3,
-            val2: 4,
-            sum: 7,
-          }, 'Task', 'NextState', false));
+            await fakeStateMachine.runState(
+              {
+                val1: 3,
+                val2: 4,
+              },
+              'Target'
+            )
+          ).to.deep.equal(
+            new RunStateResult(
+              {
+                val1: 3,
+                val2: 4,
+                sum: 7,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the Task state is called with Input', () => {
@@ -812,20 +1032,29 @@ describe('FakeStateMachine', () => {
             StartAt: 'Start',
             States: {
               Target: {
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Double',
+                Resource:
+                  'arn:aws:lambda:us-east-1:123456789012:function:Double',
                 Input: 3,
                 ResultPath: '$.result',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
-          expect(
-            await fakeStateMachine.runState({}, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            result: 6,
-          }, 'Task', 'NextState', false));
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
+          expect(await fakeStateMachine.runState({}, 'Target')).to.deep.equal(
+            new RunStateResult(
+              {
+                result: 6,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the Task state does not contain ResultPath', () => {
@@ -834,23 +1063,32 @@ describe('FakeStateMachine', () => {
             StartAt: 'Start',
             States: {
               Target: {
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Identity',
+                Resource:
+                  'arn:aws:lambda:us-east-1:123456789012:function:Identity',
                 Parameters: {
                   a: 1,
                   b: 2,
                 },
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
-          expect(
-            await fakeStateMachine.runState({}, 'Target')
-          ).to.deep.equal(new RunStateResult({
-            a: 1,
-            b: 2,
-          }, 'Task', 'NextState', false));
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
+          expect(await fakeStateMachine.runState({}, 'Target')).to.deep.equal(
+            new RunStateResult(
+              {
+                a: 1,
+                b: 2,
+              },
+              'Task',
+              'NextState',
+              false
+            )
+          );
         });
       });
       context('when the Task state contains an unknown fake resource', () => {
@@ -859,14 +1097,18 @@ describe('FakeStateMachine', () => {
             StartAt: 'Start',
             States: {
               Target: {
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Unknown',
+                Resource:
+                  'arn:aws:lambda:us-east-1:123456789012:function:Unknown',
                 ResultPath: '$.result',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
-          const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
+          const fakeStateMachine = new FakeStateMachine(
+            definition,
+            fakeResources
+          );
           return expect(
             fakeStateMachine.runState({}, 'Target')
           ).to.rejectedWith(
@@ -881,32 +1123,38 @@ describe('FakeStateMachine', () => {
             StartAt: 'Start',
             States: {
               Target: {
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:saveInput',
+                Resource:
+                  'arn:aws:lambda:us-east-1:123456789012:function:saveInput',
                 Parameters: {
                   input: {
                     val1: 3,
                     'val2.$': '$.b.c.val2',
-                  }
+                  },
                 },
                 ResultPath: '$.result',
                 Type: 'Task',
-                Next: 'NextState'
-              }
-            }
+                Next: 'NextState',
+              },
+            },
           };
           let input: any;
           const fakeStateMachine = new FakeStateMachine(definition, {
-            'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (event: any) => {
+            'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (
+              event: any
+            ) => {
               input = event;
               return event.input.val1 + event.input.val2;
-            }
+            },
           });
-          const actual = await fakeStateMachine.runState({ a: 2, b: { c: { val2: 4 } } }, 'Target');
+          const actual = await fakeStateMachine.runState(
+            { a: 2, b: { c: { val2: 4 } } },
+            'Target'
+          );
           expect(input).to.deep.equal({ input: { val1: 3, val2: 4 } });
           expect(actual.data).to.deep.equal({
             a: 2,
             b: {
-              c: { val2: 4 }
+              c: { val2: 4 },
             },
             result: 7,
           });

@@ -1,14 +1,7 @@
-/* eslint-env mocha */
-
 'use strict';
 
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import { FakeStateMachine } from '../src/FakeStateMachine';
 import { RunStateResult } from '../src/RunStateResult';
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
 
 const addNumbers = (numbers: { val1: number; val2: number }) =>
   numbers.val1 + numbers.val2;
@@ -16,8 +9,8 @@ const increment = (i: number) => i + 1;
 
 describe('FakeStateMachine', () => {
   describe('#run()', () => {
-    context('when StartAt field does not exist', () => {
-      it('should throw an Error', () => {
+    describe('when StartAt field does not exist', () => {
+      test('should throw an Error', () => {
         const definition = {
           States: {
             Done: {
@@ -26,14 +19,13 @@ describe('FakeStateMachine', () => {
           },
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
-        return expect(fakeStateMachine.run({})).to.rejectedWith(
-          Error,
+        return expect(fakeStateMachine.run({})).rejects.toThrow(
           'StartAt does not exist'
         );
       });
     });
 
-    it('should pass the input to fakeResource and fill the result to ResultPath', async () => {
+    test('should pass the input to fakeResource and fill the result to ResultPath', async () => {
       const definition = {
         StartAt: 'Add',
         States: {
@@ -56,7 +48,7 @@ describe('FakeStateMachine', () => {
           title: 'Numbers to add',
           numbers: { val1: 3, val2: 4 },
         })
-      ).to.deep.equal(
+      ).toEqual(
         new RunStateResult(
           {
             title: 'Numbers to add',
@@ -70,8 +62,8 @@ describe('FakeStateMachine', () => {
       );
     });
 
-    context('when there is invalid Type String', () => {
-      it('should throw an Error', () => {
+    describe('when there is invalid Type String', () => {
+      test('should throw an Error', () => {
         const definition = {
           StartAt: 'Done',
           States: {
@@ -82,14 +74,13 @@ describe('FakeStateMachine', () => {
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
-        return expect(fakeStateMachine.run({})).to.rejectedWith(
-          Error,
+        return expect(fakeStateMachine.run({})).rejects.toThrow(
           'Invalid Type: UnknownType'
         );
       });
     });
-    context('when the state machine has two states', () => {
-      it('should return the result successfully', async () => {
+    describe('when the state machine has two states', () => {
+      test('should return the result successfully', async () => {
         const definition = {
           StartAt: 'Add1',
           States: {
@@ -122,7 +113,7 @@ describe('FakeStateMachine', () => {
             title: 'Numbers to add',
             numbers: { val1: 3, val2: 4 },
           })
-        ).to.deep.equal(
+        ).toEqual(
           new RunStateResult(
             {
               title: 'Numbers to add',
@@ -138,8 +129,8 @@ describe('FakeStateMachine', () => {
       });
     });
 
-    context('when state machine contains a loop with break', () => {
-      it('should return the result successfully', async () => {
+    describe('when state machine contains a loop with break', () => {
+      test('should return the result successfully', async () => {
         const definition = {
           StartAt: 'IncrementOrEnd',
           States: {
@@ -178,7 +169,7 @@ describe('FakeStateMachine', () => {
           await fakeStateMachine.run({
             i: 0,
           })
-        ).to.deep.equal(
+        ).toEqual(
           new RunStateResult(
             {
               i: 3,
@@ -191,8 +182,8 @@ describe('FakeStateMachine', () => {
       });
     });
 
-    context('when the state updates a copied field', () => {
-      it('should not affect the original field', async () => {
+    describe('when the state updates a copied field', () => {
+      test('should not affect the original field', async () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -218,7 +209,7 @@ describe('FakeStateMachine', () => {
           await fakeStateMachine.run({
             a1: { b: 1 },
           })
-        ).to.deep.equal(
+        ).toEqual(
           new RunStateResult(
             {
               a1: { b: 1 },
@@ -270,26 +261,26 @@ describe('FakeStateMachine', () => {
     const fakeStateMachine = new FakeStateMachine(definition, {
       'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
     });
-    context('with start and end', () => {
-      it('should run while the condition fulfills', async () => {
+    describe('with start and end', () => {
+      test('should run while the condition fulfills', async () => {
         expect(
           await fakeStateMachine.runCondition(
             {},
             { start: 'main.initialize', end: 'main.check' }
           )
-        ).to.deep.equal(
+        ).toEqual(
           new RunStateResult({ i: 1 }, 'Choice', 'main.increment', false)
         );
       });
     });
-    context('with start and regex', () => {
-      it('should run while the condition fulfills', async () => {
+    describe('with start and regex', () => {
+      test('should run while the condition fulfills', async () => {
         expect(
           await fakeStateMachine.runCondition(
             {},
             { start: 'main.initialize', regex: /main\.\w+/ }
           )
-        ).to.deep.equal(new RunStateResult({ i: 3 }, 'Choice', 'hoge', false));
+        ).toEqual(new RunStateResult({ i: 3 }, 'Choice', 'hoge', false));
       });
     });
   });
@@ -328,14 +319,14 @@ describe('FakeStateMachine', () => {
       },
     };
     const fakeStateMachine = new FakeStateMachine(definition, {});
-    it('should execute states between the start state and the end state', async () => {
+    test('should execute states between the start state and the end state', async () => {
       expect(
         await fakeStateMachine.runPartial(
           { title: 'run-partial' },
           'Pass1',
           'Pass2'
         )
-      ).to.deep.equal(
+      ).toEqual(
         new RunStateResult(
           {
             title: 'run-partial',
@@ -351,8 +342,8 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runState()', () => {
-    context('when the specified stateName does not exists', () => {
-      it('should throw an Error', () => {
+    describe('when the specified stateName does not exists', () => {
+      test('should throw an Error', () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -371,11 +362,11 @@ describe('FakeStateMachine', () => {
             },
             'Target'
           )
-        ).to.rejectedWith(Error, 'the state Target does not exists');
+        ).rejects.toThrow('the state Target does not exists');
       });
     });
-    context('when the state has `"End": true`', () => {
-      it('should be marked as a terminal state', async () => {
+    describe('when the state has `"End": true`', () => {
+      test('should be marked as a terminal state', async () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -395,12 +386,12 @@ describe('FakeStateMachine', () => {
             },
             'Target'
           )).isTerminalState
-        ).to.be.true;
+        ).toBe(true);
       });
     });
 
-    context('when the state contains "Next" field', () => {
-      it('should return the state with results and "Next" destination', async () => {
+    describe('when the state contains "Next" field', () => {
+      test('should return the state with results and "Next" destination', async () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -420,42 +411,38 @@ describe('FakeStateMachine', () => {
             },
             'Target'
           )).nextStateName
-        ).to.equal('NextState');
+        ).toBe('NextState');
       });
     });
 
-    context(
-      'when the state does not contain "Next" field and does not have `"End": true`',
-      () => {
-        it('should throw an error', () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Input: 'a',
-                ResultPath: '$.a2',
-                Type: 'Pass',
-              },
+    describe('when the state does not contain "Next" field and does not have `"End": true`', () => {
+      test('should throw an error', () => {
+        const definition = {
+          StartAt: 'Start',
+          States: {
+            Target: {
+              Input: 'a',
+              ResultPath: '$.a2',
+              Type: 'Pass',
             },
-          };
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          return expect(
-            fakeStateMachine.runState(
-              {
-                a1: 123,
-              },
-              'Target'
-            )
-          ).be.rejectedWith(
-            Error,
-            'nextState must be non-null when the state is non-terminal state'
-          );
-        });
-      }
-    );
+          },
+        };
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        return expect(
+          fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )
+        ).rejects.toThrow(
+          'nextState must be non-null when the state is non-terminal state'
+        );
+      });
+    });
 
-    context('when the state has `"Type": "Succeed"`', () => {
-      it('should not change the state and return it', async () => {
+    describe('when the state has `"Type": "Succeed"`', () => {
+      test('should not change the state and return it', async () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -466,13 +453,13 @@ describe('FakeStateMachine', () => {
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
-        expect(
-          await fakeStateMachine.runState({ sum: 7 }, 'Target')
-        ).to.deep.equal(new RunStateResult({ sum: 7 }, 'Succeed', null, true));
+        expect(await fakeStateMachine.runState({ sum: 7 }, 'Target')).toEqual(
+          new RunStateResult({ sum: 7 }, 'Succeed', null, true)
+        );
       });
     });
-    context('when the state has `"Type": "Fail"`', () => {
-      it('should not change the state and return it', async () => {
+    describe('when the state has `"Type": "Fail"`', () => {
+      test('should not change the state and return it', async () => {
         const definition = {
           StartAt: 'Start',
           States: {
@@ -483,13 +470,13 @@ describe('FakeStateMachine', () => {
         };
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
-        expect(
-          await fakeStateMachine.runState({ sum: 7 }, 'Target')
-        ).to.deep.equal(new RunStateResult({ sum: 7 }, 'Fail', null, true));
+        expect(await fakeStateMachine.runState({ sum: 7 }, 'Target')).toEqual(
+          new RunStateResult({ sum: 7 }, 'Fail', null, true)
+        );
       });
     });
-    context('when the state has `"Type": "Choice"`', () => {
-      context('when Choices contains only one element', () => {
+    describe('when the state has `"Type": "Choice"`', () => {
+      describe('when Choices contains only one element', () => {
         const conditions = [
           {
             conditionType: 'StringEquals',
@@ -536,63 +523,57 @@ describe('FakeStateMachine', () => {
         ];
 
         conditions.forEach(({ conditionType, condition, testCases }) => {
-          context(`with ${conditionType}`, () => {
+          describe(`with ${conditionType}`, () => {
             testCases.forEach(testCaseRow => {
               const [inputValue, expectedNextStateName] = testCaseRow;
-              context(
-                `when condition=${condition} and input=${inputValue}`,
-                () => {
-                  const choice: any = {
-                    Variable: '$.condition',
-                    Next: 'NextState',
-                  };
-                  choice[conditionType] = condition;
-                  const definition = {
-                    States: {
-                      Choices: {
-                        Type: 'Choice',
-                        Choices: [choice],
-                        Default: 'DefaultState',
-                      },
+              describe(`when condition=${condition} and input=${inputValue}`, () => {
+                const choice: any = {
+                  Variable: '$.condition',
+                  Next: 'NextState',
+                };
+                choice[conditionType] = condition;
+                const definition = {
+                  States: {
+                    Choices: {
+                      Type: 'Choice',
+                      Choices: [choice],
+                      Default: 'DefaultState',
                     },
-                  };
+                  },
+                };
 
-                  it(`the next state should be ${expectedNextStateName}`, async () => {
-                    const fakeStateMachine = new FakeStateMachine(
-                      definition,
-                      {}
-                    );
-                    expect(
-                      await fakeStateMachine.runState(
-                        { condition: inputValue },
-                        'Choices'
-                      )
-                    ).to.deep.equal(
-                      new RunStateResult(
-                        { condition: inputValue },
-                        'Choice',
-                        expectedNextStateName,
-                        false
-                      )
-                    );
-                  });
-                }
-              );
+                test(`the next state should be ${expectedNextStateName}`, async () => {
+                  const fakeStateMachine = new FakeStateMachine(definition, {});
+                  expect(
+                    await fakeStateMachine.runState(
+                      { condition: inputValue },
+                      'Choices'
+                    )
+                  ).toEqual(
+                    new RunStateResult(
+                      { condition: inputValue },
+                      'Choice',
+                      expectedNextStateName,
+                      false
+                    )
+                  );
+                });
+              });
             });
           });
         });
-        context('with And', () => {
-          it('pending');
+        describe('with And', () => {
+          test.todo('pending');
         });
-        context('with Or', () => {
-          it('pending');
+        describe('with Or', () => {
+          test.todo('pending');
         });
-        context('with Not', () => {
-          it('pending');
+        describe('with Not', () => {
+          test.todo('pending');
         });
       });
-      context('when Choices contains more than two element', () => {
-        it('should select the expected state as a next state', async () => {
+      describe('when Choices contains more than two element', () => {
+        test('should select the expected state as a next state', async () => {
           const definition = {
             States: {
               Choices: {
@@ -622,7 +603,7 @@ describe('FakeStateMachine', () => {
               },
               'Choices'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 condition1: false,
@@ -637,9 +618,9 @@ describe('FakeStateMachine', () => {
       });
     });
 
-    context('when the state has `"Type": "Pass"`', () => {
-      context('when there is an Input field', () => {
-        it('should fill outputPath using Input field', async () => {
+    describe('when the state has `"Type": "Pass"`', () => {
+      describe('when there is an Input field', () => {
+        test('should fill outputPath using Input field', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -659,7 +640,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 a1: 123,
@@ -672,9 +653,9 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the state has an InputPath field', () => {
-        context('when the InputPath is undefined', () => {
-          it('should fill outputPath using the whole data (i.e. $)', async () => {
+      describe('when the state has an InputPath field', () => {
+        describe('when the InputPath is undefined', () => {
+          test('should fill outputPath using the whole data (i.e. $)', async () => {
             const definition = {
               StartAt: 'Start',
               States: {
@@ -693,7 +674,7 @@ describe('FakeStateMachine', () => {
                 },
                 'Target'
               )
-            ).to.deep.equal(
+            ).toEqual(
               new RunStateResult(
                 {
                   a1: 123,
@@ -706,8 +687,8 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when the state contains Result', () => {
-          it('should fill the content of Result to ResultPath', async () => {
+        describe('when the state contains Result', () => {
+          test('should fill the content of Result to ResultPath', async () => {
             const definition = {
               StartAt: 'Start',
               States: {
@@ -727,7 +708,7 @@ describe('FakeStateMachine', () => {
                 },
                 'Target'
               )
-            ).to.deep.equal(
+            ).toEqual(
               new RunStateResult(
                 {
                   a1: 123,
@@ -740,8 +721,8 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when the InputPath is null', () => {
-          it('should fill outputPath using {}', async () => {
+        describe('when the InputPath is null', () => {
+          test('should fill outputPath using {}', async () => {
             const definition: any = {
               StartAt: 'Start',
               States: {
@@ -761,7 +742,7 @@ describe('FakeStateMachine', () => {
                 },
                 'Target'
               )
-            ).to.deep.equal(
+            ).toEqual(
               new RunStateResult(
                 {
                   a1: 123,
@@ -774,8 +755,8 @@ describe('FakeStateMachine', () => {
             );
           });
         });
-        context('when the InputPath is non-null', () => {
-          it('should fill outputPath using InputPath field', async () => {
+        describe('when the InputPath is non-null', () => {
+          test('should fill outputPath using InputPath field', async () => {
             const definition = {
               StartAt: 'Start',
               States: {
@@ -795,7 +776,7 @@ describe('FakeStateMachine', () => {
                 },
                 'Target'
               )
-            ).to.deep.equal(
+            ).toEqual(
               new RunStateResult(
                 {
                   a1: 123,
@@ -809,8 +790,8 @@ describe('FakeStateMachine', () => {
           });
         });
       });
-      context('when the InputPath points a path like $.a.b3.c2', () => {
-        it('should parse the InputPath correctly', async () => {
+      describe('when the InputPath points a path like $.a.b3.c2', () => {
+        test('should parse the InputPath correctly', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -834,7 +815,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 a: {
@@ -852,7 +833,7 @@ describe('FakeStateMachine', () => {
       });
     });
 
-    context('when the state has `"Type": "Task"`', () => {
+    describe('when the state has `"Type": "Task"`', () => {
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
         'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async (numbers: {
@@ -864,8 +845,8 @@ describe('FakeStateMachine', () => {
         'arn:aws:lambda:us-east-1:123456789012:function:Identity': (x: any) =>
           x,
       };
-      context('when there is an InputPath field', () => {
-        it('should pass the specified subset to the Resource', async () => {
+      describe('when there is an InputPath field', () => {
+        test('should pass the specified subset to the Resource', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -889,7 +870,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 numbers: { val1: 3, val2: 4 },
@@ -902,8 +883,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the fakeResource is an async function', () => {
-        it('should pass the specified subset to the Resource', async () => {
+      describe('when the fakeResource is an async function', () => {
+        test('should pass the specified subset to the Resource', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -928,7 +909,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 numbers: { val1: 3, val2: 4 },
@@ -941,8 +922,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the InputPath points a path like $.a.b3.c2', () => {
-        it('should pass the specified subset to the Resource', async () => {
+      describe('when the InputPath points a path like $.a.b3.c2', () => {
+        test('should pass the specified subset to the Resource', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -970,7 +951,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 a: {
@@ -987,8 +968,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the Task state is called without InputPath', () => {
-        it('should pass $ to the Resource', async () => {
+      describe('when the Task state is called without InputPath', () => {
+        test('should pass $ to the Resource', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -1012,7 +993,7 @@ describe('FakeStateMachine', () => {
               },
               'Target'
             )
-          ).to.deep.equal(
+          ).toEqual(
             new RunStateResult(
               {
                 val1: 3,
@@ -1026,8 +1007,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the Task state is called with Input', () => {
-        it('should pass the Input to the Resource', async () => {
+      describe('when the Task state is called with Input', () => {
+        test('should pass the Input to the Resource', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -1045,7 +1026,7 @@ describe('FakeStateMachine', () => {
             definition,
             fakeResources
           );
-          expect(await fakeStateMachine.runState({}, 'Target')).to.deep.equal(
+          expect(await fakeStateMachine.runState({}, 'Target')).toEqual(
             new RunStateResult(
               {
                 result: 6,
@@ -1057,8 +1038,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the Task state does not contain ResultPath', () => {
-        it('should use the default value ResultPath=`$`', async () => {
+      describe('when the Task state does not contain ResultPath', () => {
+        test('should use the default value ResultPath=`$`', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -1078,7 +1059,7 @@ describe('FakeStateMachine', () => {
             definition,
             fakeResources
           );
-          expect(await fakeStateMachine.runState({}, 'Target')).to.deep.equal(
+          expect(await fakeStateMachine.runState({}, 'Target')).toEqual(
             new RunStateResult(
               {
                 a: 1,
@@ -1091,8 +1072,8 @@ describe('FakeStateMachine', () => {
           );
         });
       });
-      context('when the Task state contains an unknown fake resource', () => {
-        it('should raise an error', async () => {
+      describe('when the Task state contains an unknown fake resource', () => {
+        test('should raise an error', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -1111,14 +1092,13 @@ describe('FakeStateMachine', () => {
           );
           return expect(
             fakeStateMachine.runState({}, 'Target')
-          ).to.rejectedWith(
-            Error,
+          ).rejects.toThrow(
             'Unknown resource: arn:aws:lambda:us-east-1:123456789012:function:Unknown'
           );
         });
       });
-      context('when the Task state contains a Parameters property', () => {
-        it('should pass the specified parameters', async () => {
+      describe('when the Task state contains a Parameters property', () => {
+        test('should pass the specified parameters', async () => {
           const definition = {
             StartAt: 'Start',
             States: {
@@ -1150,8 +1130,8 @@ describe('FakeStateMachine', () => {
             { a: 2, b: { c: { val2: 4 } } },
             'Target'
           );
-          expect(input).to.deep.equal({ input: { val1: 3, val2: 4 } });
-          expect(actual.data).to.deep.equal({
+          expect(input).toEqual({ input: { val1: 3, val2: 4 } });
+          expect(actual.data).toEqual({
             a: 2,
             b: {
               c: { val2: 4 },
@@ -1161,11 +1141,11 @@ describe('FakeStateMachine', () => {
         });
       });
     });
-    context('when the state has `"Type": "Wait"`', () => {
-      it('pending');
+    describe('when the state has `"Type": "Wait"`', () => {
+      test.todo('pending');
     });
-    context('when the state has `"Type": "Parallel"`', () => {
-      it('pending');
+    describe('when the state has `"Type": "Parallel"`', () => {
+      test.todo('pending');
     });
   });
 });

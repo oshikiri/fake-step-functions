@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-
-import { expect } from 'chai';
 import { FakeStateMachine } from '../src/FakeStateMachine';
 
 describe('FakeStateMachine.run', () => {
@@ -25,13 +22,13 @@ describe('FakeStateMachine.run', () => {
   };
   const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
-  it('should execute the state machine with fakeResource', async () => {
+  test('should execute the state machine with fakeResource', async () => {
     const runStateResult = await fakeStateMachine.run({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 },
     });
 
-    expect(runStateResult.data).to.deep.equal({
+    expect(runStateResult.data).toEqual({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 },
       sum: 7,

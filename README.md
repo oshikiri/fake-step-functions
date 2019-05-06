@@ -5,7 +5,6 @@ A lightweight testing toolkit for Amazon States Language.
 [![Build Status](https://travis-ci.org/oshikiri/fake-step-functions.svg?branch=master)](https://travis-ci.org/oshikiri/fake-step-functions) [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
 
 ```js
-const { expect } = require('chai');
 const { FakeStateMachine } = require('fake-step-functions');
 
 describe('FakeStateMachine.run', () => {
@@ -18,25 +17,28 @@ describe('FakeStateMachine.run', () => {
         Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
         InputPath: '$.numbers',
         ResultPath: '$.sum',
-        End: true
-      }
-    }
+        End: true,
+      },
+    },
   };
   const fakeResources = {
-    'arn:aws:lambda:us-east-1:123456789012:function:Add': numbers => numbers.val1 + numbers.val2
+    'arn:aws:lambda:us-east-1:123456789012:function:Add': (numbers: {
+      val1: number;
+      val2: number;
+    }) => numbers.val1 + numbers.val2,
   };
   const fakeStateMachine = new FakeStateMachine(definition, fakeResources);
 
-  it('should execute the state machine with fakeResource', async () => {
+  test('should execute the state machine with fakeResource', async () => {
     const runStateResult = await fakeStateMachine.run({
       title: 'Numbers to add',
-      numbers: { val1: 3, val2: 4 }
+      numbers: { val1: 3, val2: 4 },
     });
 
-    expect(runStateResult.data).to.deep.equal({
+    expect(runStateResult.data).toEqual({
       title: 'Numbers to add',
       numbers: { val1: 3, val2: 4 },
-      sum: 7
+      sum: 7,
     });
   });
 });

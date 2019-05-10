@@ -1,0 +1,8 @@
+{
+  "StartAt": "Done",
+  "States": {
+    "Done": {
+      "Type": "UnknownType"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Start": {
+      "Type": "Pass",
+      "InputPath": "$.a1",
+      "ResultPath": "$.a2",
+      "Next": "Increment"
+    },
+    "Increment": {
+      "Type": "Pass",
+      "Input": 2,
+      "ResultPath": "$.a2.b",
+      "Next": "Done"
+    },
+    "Done": {
+      "Type": "Succeed"
+    }
+  }
+}

@@ -11,13 +11,7 @@ describe('FakeStateMachine', () => {
   describe('#run()', () => {
     describe('when StartAt field does not exist', () => {
       test('should throw an Error', () => {
-        const definition = {
-          States: {
-            Done: {
-              Type: 'Succeed',
-            },
-          },
-        };
+        const definition = require('./fixtures/startat-field-does-not-exist.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         return expect(fakeStateMachine.run({})).rejects.toThrow(
           'StartAt does not exist'
@@ -26,18 +20,7 @@ describe('FakeStateMachine', () => {
     });
 
     test('should pass the input to fakeResource and fill the result to ResultPath', async () => {
-      const definition = {
-        StartAt: 'Add',
-        States: {
-          Add: {
-            Type: 'Task',
-            Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-            InputPath: '$.numbers',
-            ResultPath: '$.sum',
-            End: true,
-          },
-        },
-      };
+      const definition = require('./fixtures/add.json');
       const fakeResources = {
         'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
       };
@@ -64,14 +47,7 @@ describe('FakeStateMachine', () => {
 
     describe('when there is invalid Type String', () => {
       test('should throw an Error', () => {
-        const definition = {
-          StartAt: 'Done',
-          States: {
-            Done: {
-              Type: 'UnknownType',
-            },
-          },
-        };
+        const definition = require('./fixtures/unknown-type.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
         return expect(fakeStateMachine.run({})).rejects.toThrow(
@@ -81,25 +57,7 @@ describe('FakeStateMachine', () => {
     });
     describe('when the state machine has two states', () => {
       test('should return the result successfully', async () => {
-        const definition = {
-          StartAt: 'Add1',
-          States: {
-            Add1: {
-              Type: 'Task',
-              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-              InputPath: '$.numbers',
-              ResultPath: '$.sum1',
-              Next: 'Add2',
-            },
-            Add2: {
-              Type: 'Task',
-              Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-              InputPath: '$.numbers',
-              ResultPath: '$.sum2',
-              End: true,
-            },
-          },
-        };
+        const definition = require('./fixtures/two-states.json');
         const fakeResources = {
           'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
         };
@@ -131,33 +89,7 @@ describe('FakeStateMachine', () => {
 
     describe('when state machine contains a loop with break', () => {
       test('should return the result successfully', async () => {
-        const definition = {
-          StartAt: 'IncrementOrEnd',
-          States: {
-            IncrementOrEnd: {
-              Type: 'Choice',
-              Choices: [
-                {
-                  Variable: '$.i',
-                  NumericEquals: 3,
-                  Next: 'Done',
-                },
-              ],
-              Default: 'Increment',
-            },
-            Increment: {
-              Type: 'Task',
-              Resource:
-                'arn:aws:lambda:us-east-1:123456789012:function:Increment',
-              InputPath: '$.i',
-              ResultPath: '$.i',
-              Next: 'IncrementOrEnd',
-            },
-            Done: {
-              Type: 'Succeed',
-            },
-          },
-        };
+        const definition = require('./fixtures/loop.json');
         const fakeResources = {
           'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
         };
@@ -184,26 +116,7 @@ describe('FakeStateMachine', () => {
 
     describe('when the state updates a copied field', () => {
       test('should not affect the original field', async () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Start: {
-              Type: 'Pass',
-              InputPath: '$.a1',
-              ResultPath: '$.a2',
-              Next: 'Increment',
-            },
-            Increment: {
-              Type: 'Pass',
-              Input: 2,
-              ResultPath: '$.a2.b',
-              Next: 'Done',
-            },
-            Done: {
-              Type: 'Succeed',
-            },
-          },
-        };
+        const definition = require('./fixtures/copy-object.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         expect(
           await fakeStateMachine.run({
@@ -225,39 +138,7 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runCondition()', () => {
-    const definition = {
-      States: {
-        'main.initialize': {
-          Type: 'Pass',
-          Result: 0,
-          ResultPath: '$.i',
-          Next: 'main.increment',
-        },
-        'main.increment': {
-          Type: 'Task',
-          InputPath: '$.i',
-          Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Increment',
-          ResultPath: '$.i',
-          Next: 'main.check',
-        },
-        'main.check': {
-          Type: 'Choice',
-          Choices: [
-            {
-              Variable: '$.i',
-              NumericEquals: 3,
-              Next: 'hoge',
-            },
-          ],
-          Default: 'main.increment',
-        },
-        hoge: {
-          Type: 'Pass',
-          Input: -1,
-          ResultPath: '$.i',
-        },
-      },
-    };
+    const definition = require('./fixtures/states-with-common-prefix.json');
     const fakeStateMachine = new FakeStateMachine(definition, {
       'arn:aws:lambda:us-east-1:123456789012:function:Increment': increment,
     });
@@ -286,38 +167,7 @@ describe('FakeStateMachine', () => {
   });
 
   describe('#runPartial()', () => {
-    const definition = {
-      StartAt: 'Pass0',
-      States: {
-        Pass0: {
-          Input: 'a',
-          ResultPath: '$.p0',
-          Type: 'Pass',
-          Next: 'Pass1',
-        },
-        Pass1: {
-          Input: 'b',
-          ResultPath: '$.p1',
-          Type: 'Pass',
-          Next: 'Pass2',
-        },
-        Pass2: {
-          Input: 'c',
-          ResultPath: '$.p2',
-          Type: 'Pass',
-          Next: 'Pass3',
-        },
-        Pass3: {
-          Input: 'd',
-          ResultPath: '$.p3',
-          Type: 'Pass',
-          Next: 'Done',
-        },
-        Done: {
-          Type: 'Succeed',
-        },
-      },
-    };
+    const definition = require('./fixtures/many-states.json');
     const fakeStateMachine = new FakeStateMachine(definition, {});
     test('should execute states between the start state and the end state', async () => {
       expect(
@@ -344,16 +194,7 @@ describe('FakeStateMachine', () => {
   describe('#runState()', () => {
     describe('when the specified stateName does not exists', () => {
       test('should throw an Error', () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target2: {
-              Input: 'a',
-              ResultPath: '$.a2',
-              Type: 'Pass',
-            },
-          },
-        };
+        const definition = require('./fixtures/startat-does-not-exist.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         return expect(
           fakeStateMachine.runState(
@@ -367,17 +208,7 @@ describe('FakeStateMachine', () => {
     });
     describe('when the state has `"End": true`', () => {
       test('should be marked as a terminal state', async () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Input: 'a',
-              ResultPath: '$.a2',
-              Type: 'Pass',
-              End: true,
-            },
-          },
-        };
+        const definition = require('./fixtures/state-with-end-is-true.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         return expect(
           (await fakeStateMachine.runState(
@@ -392,17 +223,7 @@ describe('FakeStateMachine', () => {
 
     describe('when the state contains "Next" field', () => {
       test('should return the state with results and "Next" destination', async () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Input: 'a',
-              ResultPath: '$.a2',
-              Type: 'Pass',
-              Next: 'NextState',
-            },
-          },
-        };
+        const definition = require('./fixtures/state-with-next-property.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         expect(
           (await fakeStateMachine.runState(
@@ -417,16 +238,7 @@ describe('FakeStateMachine', () => {
 
     describe('when the state does not contain "Next" field and does not have `"End": true`', () => {
       test('should throw an error', () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Input: 'a',
-              ResultPath: '$.a2',
-              Type: 'Pass',
-            },
-          },
-        };
+        const definition = require('./fixtures/state-without-next-and-end.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         return expect(
           fakeStateMachine.runState(
@@ -443,14 +255,7 @@ describe('FakeStateMachine', () => {
 
     describe('when the state has `"Type": "Succeed"`', () => {
       test('should not change the state and return it', async () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Type: 'Succeed',
-            },
-          },
-        };
+        const definition = require('./fixtures/succeed.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
         expect(await fakeStateMachine.runState({ sum: 7 }, 'Target')).toEqual(
@@ -460,14 +265,7 @@ describe('FakeStateMachine', () => {
     });
     describe('when the state has `"Type": "Fail"`', () => {
       test('should not change the state and return it', async () => {
-        const definition = {
-          StartAt: 'Start',
-          States: {
-            Target: {
-              Type: 'Fail',
-            },
-          },
-        };
+        const definition = require('./fixtures/fail.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
 
         expect(await fakeStateMachine.runState({ sum: 7 }, 'Target')).toEqual(
@@ -574,26 +372,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when Choices contains more than two element', () => {
         test('should select the expected state as a next state', async () => {
-          const definition = {
-            States: {
-              Choices: {
-                Type: 'Choice',
-                Choices: [
-                  {
-                    Variable: '$.condition1',
-                    BooleanEquals: true,
-                    Next: 'NextState1',
-                  },
-                  {
-                    Variable: '$.condition2',
-                    BooleanEquals: true,
-                    Next: 'NextState2',
-                  },
-                ],
-                Default: 'DefaultState',
-              },
-            },
-          };
+          const definition = require('./fixtures/choice-more-than-two-choices.json');
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
             await fakeStateMachine.runState(
@@ -621,17 +400,7 @@ describe('FakeStateMachine', () => {
     describe('when the state has `"Type": "Pass"`', () => {
       describe('when there is an Input field', () => {
         test('should fill outputPath using Input field', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Input: 'a',
-                ResultPath: '$.a2',
-                Type: 'Pass',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/pass-input-to-resultpath.json');
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
             await fakeStateMachine.runState(
@@ -656,16 +425,7 @@ describe('FakeStateMachine', () => {
       describe('when the state has an InputPath field', () => {
         describe('when the InputPath is undefined', () => {
           test('should fill outputPath using the whole data (i.e. $)', async () => {
-            const definition = {
-              StartAt: 'Start',
-              States: {
-                Target: {
-                  ResultPath: '$.a2',
-                  Type: 'Pass',
-                  Next: 'NextState',
-                },
-              },
-            };
+            const definition = require('./fixtures/pass-inputpath-is-undefined.json');
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
               await fakeStateMachine.runState(
@@ -689,17 +449,7 @@ describe('FakeStateMachine', () => {
         });
         describe('when the state contains Result', () => {
           test('should fill the content of Result to ResultPath', async () => {
-            const definition = {
-              StartAt: 'Start',
-              States: {
-                Target: {
-                  Result: 'a',
-                  ResultPath: '$.a2',
-                  Type: 'Pass',
-                  Next: 'NextState',
-                },
-              },
-            };
+            const definition = require('./fixtures/pass-result-to-resultpath.json');
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
               await fakeStateMachine.runState(
@@ -723,17 +473,7 @@ describe('FakeStateMachine', () => {
         });
         describe('when the InputPath is null', () => {
           test('should fill outputPath using {}', async () => {
-            const definition: any = {
-              StartAt: 'Start',
-              States: {
-                Target: {
-                  InputPath: null,
-                  ResultPath: '$.a2',
-                  Type: 'Pass',
-                  Next: 'NextState',
-                },
-              },
-            };
+            const definition: any = require('./fixtures/task-inputpath-is-null.json');
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
               await fakeStateMachine.runState(
@@ -757,17 +497,7 @@ describe('FakeStateMachine', () => {
         });
         describe('when the InputPath is non-null', () => {
           test('should fill outputPath using InputPath field', async () => {
-            const definition = {
-              StartAt: 'Start',
-              States: {
-                Target: {
-                  InputPath: '$.a1',
-                  ResultPath: '$.a2',
-                  Type: 'Pass',
-                  Next: 'NextState',
-                },
-              },
-            };
+            const definition = require('./fixtures/task-inputpath-to-outputpath.json');
             const fakeStateMachine = new FakeStateMachine(definition, {});
             expect(
               await fakeStateMachine.runState(
@@ -792,17 +522,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the InputPath points a path like $.a.b3.c2', () => {
         test('should parse the InputPath correctly', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                InputPath: '$.a.b2.c1',
-                ResultPath: '$.a.b3.c2',
-                Type: 'Pass',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-complex-inputpath-and-outputpath.json');
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
             await fakeStateMachine.runState(
@@ -847,18 +567,7 @@ describe('FakeStateMachine', () => {
       };
       describe('when there is an InputPath field', () => {
         test('should pass the specified subset to the Resource', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                InputPath: '$.numbers',
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-                ResultPath: '$.sum',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-inputpath.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -885,19 +594,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the fakeResource is an async function', () => {
         test('should pass the specified subset to the Resource', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                InputPath: '$.numbers',
-                Resource:
-                  'arn:aws:lambda:us-east-1:123456789012:function:AddAsync',
-                ResultPath: '$.sum',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-addasync.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -907,7 +604,7 @@ describe('FakeStateMachine', () => {
               {
                 numbers: { val1: 3, val2: 4 },
               },
-              'Target'
+              'Add'
             )
           ).toEqual(
             new RunStateResult(
@@ -916,26 +613,15 @@ describe('FakeStateMachine', () => {
                 sum: 7,
               },
               'Task',
-              'NextState',
-              false
+              null,
+              true
             )
           );
         });
       });
       describe('when the InputPath points a path like $.a.b3.c2', () => {
         test('should pass the specified subset to the Resource', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                InputPath: '$.a.b3.c2',
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-                ResultPath: '$.sum',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-complex-inputpath.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -970,17 +656,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the Task state is called without InputPath', () => {
         test('should pass $ to the Resource', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Resource: 'arn:aws:lambda:us-east-1:123456789012:function:Add',
-                ResultPath: '$.sum',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-without-input.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -1009,19 +685,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the Task state is called with Input', () => {
         test('should pass the Input to the Resource', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Resource:
-                  'arn:aws:lambda:us-east-1:123456789012:function:Double',
-                Input: 3,
-                ResultPath: '$.result',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-input-to-resource.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -1040,21 +704,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the Task state does not contain ResultPath', () => {
         test('should use the default value ResultPath=`$`', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Resource:
-                  'arn:aws:lambda:us-east-1:123456789012:function:Identity',
-                Parameters: {
-                  a: 1,
-                  b: 2,
-                },
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-resultpath-is-undefined.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -1074,18 +724,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the Task state contains an unknown fake resource', () => {
         test('should raise an error', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Resource:
-                  'arn:aws:lambda:us-east-1:123456789012:function:Unknown',
-                ResultPath: '$.result',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/task-unknown-resource.json');
           const fakeStateMachine = new FakeStateMachine(
             definition,
             fakeResources
@@ -1099,24 +738,7 @@ describe('FakeStateMachine', () => {
       });
       describe('when the Task state contains a Parameters property', () => {
         test('should pass the specified parameters', async () => {
-          const definition = {
-            StartAt: 'Start',
-            States: {
-              Target: {
-                Resource:
-                  'arn:aws:lambda:us-east-1:123456789012:function:saveInput',
-                Parameters: {
-                  input: {
-                    val1: 3,
-                    'val2.$': '$.b.c.val2',
-                  },
-                },
-                ResultPath: '$.result',
-                Type: 'Task',
-                Next: 'NextState',
-              },
-            },
-          };
+          const definition = require('./fixtures/parameter-property.json');
           let input: any;
           const fakeStateMachine = new FakeStateMachine(definition, {
             'arn:aws:lambda:us-east-1:123456789012:function:saveInput': (

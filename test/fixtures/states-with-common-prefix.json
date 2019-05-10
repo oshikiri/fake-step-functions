@@ -1,0 +1,33 @@
+{
+  "States": {
+    "main.initialize": {
+      "Type": "Pass",
+      "Result": 0,
+      "ResultPath": "$.i",
+      "Next": "main.increment"
+    },
+    "main.increment": {
+      "Type": "Task",
+      "InputPath": "$.i",
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Increment",
+      "ResultPath": "$.i",
+      "Next": "main.check"
+    },
+    "main.check": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.i",
+          "NumericEquals": 3,
+          "Next": "hoge"
+        }
+      ],
+      "Default": "main.increment"
+    },
+    "hoge": {
+      "Type": "Pass",
+      "Input": -1,
+      "ResultPath": "$.i"
+    }
+  }
+}

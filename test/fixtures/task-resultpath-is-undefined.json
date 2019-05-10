@@ -1,0 +1,14 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Identity",
+      "Parameters": {
+        "a": 1,
+        "b": 2
+      },
+      "Type": "Task",
+      "Next": "NextState"
+    }
+  }
+}

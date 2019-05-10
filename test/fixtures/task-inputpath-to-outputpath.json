@@ -1,0 +1,11 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "InputPath": "$.a1",
+      "ResultPath": "$.a2",
+      "Type": "Pass",
+      "Next": "NextState"
+    }
+  }
+}

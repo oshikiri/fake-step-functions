@@ -1,0 +1,8 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "Type": "Succeed"
+    }
+  }
+}

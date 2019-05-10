@@ -1,0 +1,17 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:saveInput",
+      "Parameters": {
+        "input": {
+          "val1": 3,
+          "val2.$": "$.b.c.val2"
+        }
+      },
+      "ResultPath": "$.result",
+      "Type": "Task",
+      "Next": "NextState"
+    }
+  }
+}

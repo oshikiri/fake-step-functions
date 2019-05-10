@@ -1,0 +1,11 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Unknown",
+      "ResultPath": "$.result",
+      "Type": "Task",
+      "Next": "NextState"
+    }
+  }
+}

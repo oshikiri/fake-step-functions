@@ -1,0 +1,20 @@
+{
+  "States": {
+    "Choices": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.condition1",
+          "BooleanEquals": true,
+          "Next": "NextState1"
+        },
+        {
+          "Variable": "$.condition2",
+          "BooleanEquals": true,
+          "Next": "NextState2"
+        }
+      ],
+      "Default": "DefaultState"
+    }
+  }
+}

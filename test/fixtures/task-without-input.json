@@ -1,0 +1,11 @@
+{
+  "StartAt": "Start",
+  "States": {
+    "Target": {
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Add",
+      "ResultPath": "$.sum",
+      "Type": "Task",
+      "Next": "NextState"
+    }
+  }
+}

@@ -18,7 +18,7 @@
   "scripts": {
     "test": "./node_modules/.bin/jest",
     "build": "./node_modules/.bin/tsc",
-    "format": "./node_modules/.bin/prettier --write src/*.ts test/*.ts"
+    "format": "./node_modules/.bin/prettier --write src/*.ts test/*.ts test/fixtures/*.json"
   },
   "main": "./dist/index.js",
   "dependencies": {

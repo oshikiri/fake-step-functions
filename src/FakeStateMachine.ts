@@ -5,7 +5,7 @@ import { RunStateResult } from './RunStateResult';
 
 interface Definition {
   StartAt?: string;
-  States: any;
+  States: { [key: string]: State };
 }
 interface State {
   Type: string;
@@ -14,6 +14,11 @@ interface State {
   InputPath?: string | null;
   Result?: Object;
   ResultPath?: string | null;
+  Resource?: string;
+  Choices?: any[];
+  Default?: string;
+  Next?: string;
+  End?: boolean;
 }
 type Resource = { [key: string]: (arg: any) => any };
 
@@ -128,10 +133,7 @@ export class FakeStateMachine {
     return clone(state.Input || dataInputPath); // TODO: priority?
   }
 
-  static runStateChoice(
-    state: { Choices: any[]; Default: any },
-    data: { choice: any }
-  ): string {
+  static runStateChoice(state: State, data: { choice: any }): string {
     const matched = state.Choices.find((choice: any) => {
       const input = jsonpath.value(data, choice.Variable);
       return (

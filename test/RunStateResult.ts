@@ -1,4 +1,3 @@
-'use strict';
 import { RunStateResult } from '../src/RunStateResult';
 
 describe('RunStateResult', () => {

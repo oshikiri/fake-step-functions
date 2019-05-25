@@ -1,4 +1,3 @@
-'use strict';
 import * as jsonpath from 'jsonpath';
 
 describe('jsonpath', () => {

@@ -1,5 +1,3 @@
-'use strict';
-
 import { FakeStateMachine } from '../src/FakeStateMachine';
 import { RunStateResult } from '../src/RunStateResult';
 import { addNumbers } from './fixtures/resources';

@@ -1,5 +1,3 @@
-'use strict';
-
 import * as jsonpath from 'jsonpath';
 import { RunStateResult } from './RunStateResult';
 

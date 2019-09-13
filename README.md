@@ -3,7 +3,9 @@ fake-step-functions
 
 An unit testing toolkit for Amazon States Language.
 
-[![Build Status](https://travis-ci.org/oshikiri/fake-step-functions.svg?branch=master)](https://travis-ci.org/oshikiri/fake-step-functions) [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
+[![GitHub Workflows Build Status](https://github.com/oshikiri/fake-step-functions/workflows/Node%20CI/badge.svg)](https://github.com/oshikiri/fake-step-functions/actions)
+[![Build Status](https://travis-ci.org/oshikiri/fake-step-functions.svg?branch=master)](https://travis-ci.org/oshikiri/fake-step-functions)
+[![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
 
 ```js
 const { FakeStateMachine } = require('fake-step-functions');

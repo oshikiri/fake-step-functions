@@ -22,12 +22,14 @@ describe('FakeStateMachine#runState()', () => {
       const definition = require('./fixtures/definitions/state-with-end-is-true.json');
       const fakeStateMachine = new FakeStateMachine(definition, {});
       return expect(
-        (await fakeStateMachine.runState(
-          {
-            a1: 123,
-          },
-          'Target'
-        )).isTerminalState
+        (
+          await fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )
+        ).isTerminalState
       ).toBe(true);
     });
   });
@@ -37,12 +39,14 @@ describe('FakeStateMachine#runState()', () => {
       const definition = require('./fixtures/definitions/state-with-next-property.json');
       const fakeStateMachine = new FakeStateMachine(definition, {});
       expect(
-        (await fakeStateMachine.runState(
-          {
-            a1: 123,
-          },
-          'Target'
-        )).nextStateName
+        (
+          await fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )
+        ).nextStateName
       ).toBe('NextState');
     });
   });
@@ -90,12 +94,18 @@ describe('FakeStateMachine#runState()', () => {
         {
           conditionType: 'StringEquals',
           condition: 'abc',
-          testCases: [['ab', 'DefaultState'], ['abc', 'NextState']],
+          testCases: [
+            ['ab', 'DefaultState'],
+            ['abc', 'NextState'],
+          ],
         },
         {
           conditionType: 'NumericEquals',
           condition: 5,
-          testCases: [[5.0, 'NextState'], [5.1, 'DefaultState']],
+          testCases: [
+            [5.0, 'NextState'],
+            [5.1, 'DefaultState'],
+          ],
         },
         {
           conditionType: 'NumericLessThan',
@@ -127,13 +137,16 @@ describe('FakeStateMachine#runState()', () => {
         {
           conditionType: 'BooleanEquals',
           condition: true,
-          testCases: [[false, 'DefaultState'], [true, 'NextState']],
+          testCases: [
+            [false, 'DefaultState'],
+            [true, 'NextState'],
+          ],
         },
       ];
 
       conditions.forEach(({ conditionType, condition, testCases }) => {
         describe(`with ${conditionType}`, () => {
-          testCases.forEach(testCaseRow => {
+          testCases.forEach((testCaseRow) => {
             const [inputValue, expectedNextStateName] = testCaseRow;
             describe(`when condition=${condition} and input=${inputValue}`, () => {
               const choice: any = {

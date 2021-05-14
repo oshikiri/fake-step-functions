@@ -3,7 +3,7 @@ fake-step-functions
 
 An unit testing toolkit for Amazon States Language.
 
-[![GitHub Workflows Status](https://github.com/oshikiri/fake-step-functions/workflows/Node.js/badge.svg)](https://github.com/oshikiri/fake-step-functions/actions)
+[![GitHub Workflows Status](https://github.com/oshikiri/fake-step-functions/workflows/test/badge.svg)](https://github.com/oshikiri/fake-step-functions/actions)
 [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
 
 ```js

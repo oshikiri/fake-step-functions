@@ -18,7 +18,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "npm install && npm run build",
     "format": "prettier --write {src,test}/**/*.ts test/**/*.json"
   },
   "main": "./dist/index.js",

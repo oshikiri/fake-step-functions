@@ -1,6 +1,6 @@
 {
   "name": "fake-step-functions",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Takamasa Oshikiri <mail@oshikiri.org>",
   "repository": {
     "type": "git",
@@ -18,7 +18,6 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "prepare": "npm install && npm run build",
     "format": "prettier --write {src,test}/**/*.ts test/**/*.json"
   },
   "main": "./dist/index.js",

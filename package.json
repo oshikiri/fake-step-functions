@@ -16,9 +16,10 @@
   ],
   "license": "Apache-2.0",
   "scripts": {
-    "test": "./node_modules/.bin/jest",
-    "build": "./node_modules/.bin/tsc",
-    "format": "./node_modules/.bin/prettier --write {src,test}/**/*.ts test/**/*.json"
+    "test": "jest",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "format": "prettier --write {src,test}/**/*.ts test/**/*.json"
   },
   "main": "./dist/index.js",
   "dependencies": {

@@ -267,13 +267,16 @@ export class FakeStateMachine {
   }
 
   static resolveParameters(rawParameters: any, data: object): object {
-    const resolvedParameters: any = {};
+    const resolvedParameters: any = Array.isArray(rawParameters)
+      ? []
+      : {};
+  
     for (let key of Object.keys(rawParameters)) {
       const rawValue = rawParameters[key];
       if (key.endsWith('.$')) {
         key = key.slice(0, -2);
         resolvedParameters[key] = jsonpath.value(data, rawValue);
-      } else if (isObject(rawValue)) {
+      } else if (isObject(rawValue) || Array.isArray(rawValue)) {
         resolvedParameters[key] = this.resolveParameters(rawValue, data);
       } else {
         resolvedParameters[key] = rawValue;

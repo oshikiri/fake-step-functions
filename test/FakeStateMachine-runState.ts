@@ -906,7 +906,12 @@ describe('FakeStateMachine#runState()', () => {
           { a: 2, b: { c: { val2: 4 } } },
           'Target'
         );
-        expect(input).toEqual({ input: { val1: 3, val2: 4 } });
+        expect(input).toEqual({
+          input: { val1: 3, val2: 4 },
+          arrayInput: [
+            { val1: 3, val2: 4 },
+            { val1: 4, val2: 3 },
+          ] });
         expect(actual.data).toEqual({
           a: 2,
           b: {

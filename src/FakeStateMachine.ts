@@ -1,10 +1,11 @@
 import * as jsonpath from 'jsonpath';
 import { RunStateResult } from './RunStateResult';
 
-interface Definition {
+export interface Definition {
   StartAt?: string;
   States: { [key: string]: State };
 }
+
 interface State {
   Type: string;
   Parameters?: Object;
@@ -13,12 +14,54 @@ interface State {
   Result?: Object;
   ResultPath?: string | null;
   Resource?: string;
-  Choices?: any[];
+  Choices?: TopLevelChoiceRule[];
   Default?: string;
   Next?: string;
   End?: boolean;
 }
-type Resource = { [key: string]: (arg: any) => any };
+
+export interface TopLevelChoiceRule extends ChoiceRule {
+  Next: string;
+}
+
+interface ChoiceRule extends Partial<BasicChoiceRule> {
+  And?: ChoiceRule[];
+  Or?: ChoiceRule[];
+  Not?: ChoiceRule;
+}
+
+interface BasicChoiceRule {
+  Variable: string;
+  StringEquals?: string;
+  NumericEquals?: number;
+  NumericLessThan?: number;
+  NumericGreaterThan?: number;
+  NumericGreaterThanEquals?: number;
+  NumericLessThanEquals?: number;
+  BooleanEquals?: boolean;
+  BooleanEqualsPath?: string;
+  StringEqualsPath?: string;
+  NumericEqualsPath?: string;
+  NumericLessThanPath?: string;
+  NumericGreaterThanPath?: string;
+  NumericLessThanEqualsPath?: string;
+  NumericGreaterThanEqualsPath?: string;
+  IsPresent?: boolean;
+  IsNull?: boolean;
+  IsBoolean?: boolean;
+  IsNumeric?: boolean;
+  IsString?: boolean;
+  IsTimestamp?: boolean;
+  /* TODO: StringLessThan, StringLessThanPath, StringGreaterThan, StringGreaterThanPath,
+    StringLessThanEquals, StringLessThanEqualsPath, StringGreaterThanEquals,
+    StringGreaterThanEqualsPath, StringMatches, TimestampEquals, TimestampEqualsPath,
+    TimestampLessThan, TimestampLessThanPath, TimestampGreaterThan, TimestampGreaterThanPath,
+    TimestampLessThanEquals, TimestampLessThanEqualsPath, TimestampGreaterThanEquals,
+    TimestampGreaterThanEqualsPath
+  */
+}
+
+export type Resource = { [key: string]: (arg: any) => any };
 
 const clone = (obj: object) => JSON.parse(JSON.stringify(obj)); // TODO
 const isObject = (x: object) => typeof x === 'object' && x !== null;
@@ -131,24 +174,71 @@ export class FakeStateMachine {
     return clone(state.Input || dataInputPath); // TODO: priority?
   }
 
-  static runStateChoice(state: State, data: { choice: any }): string {
-    const matched = state.Choices.find((choice: any) => {
-      const input = jsonpath.value(data, choice.Variable);
-      return (
-        (choice.StringEquals && input === choice.StringEquals) ||
-        (choice.NumericEquals && input === choice.NumericEquals) ||
-        (choice.NumericLessThan && input < choice.NumericLessThan) ||
-        (choice.NumericGreaterThan && input > choice.NumericGreaterThan) ||
-        (choice.NumericLessThanEquals &&
-          input <= choice.NumericLessThanEquals) ||
-        (choice.NumericGreaterThanEquals &&
-          input >= choice.NumericGreaterThanEquals) ||
-        (choice.BooleanEquals && input === choice.BooleanEquals)
-      );
+  static runStateChoice(state: State, data: any): string {
+    const matched = state.Choices.find((choice) => {
+      return FakeStateMachine.isRightChoice(choice, data);
     });
 
     if (matched !== undefined) return matched.Next;
     return state.Default;
+  }
+
+  static isRightChoice(choice: ChoiceRule, data: any): boolean {
+    if (choice.Not) {
+      return !FakeStateMachine.isRightChoice(choice.Not, data);
+    }
+
+    if (choice.Or) {
+      return choice.Or
+        .some((subChoice: any) => FakeStateMachine.isRightChoice(subChoice, data));
+    }
+
+    if (choice.And) {
+      return choice.And
+        .every((subChoice: any) => FakeStateMachine.isRightChoice(subChoice, data));
+    }
+
+    return FakeStateMachine.compareChoice(choice as BasicChoiceRule, data);
+  }
+
+  static compareChoice(choice: BasicChoiceRule, data: any) {
+    const input = jsonpath.value(data, choice.Variable);
+
+    return (choice.StringEquals && input === choice.StringEquals) ||
+      (choice.NumericEquals && input === choice.NumericEquals) ||
+      (choice.NumericLessThan && input < choice.NumericLessThan) ||
+      (choice.NumericGreaterThan && input > choice.NumericGreaterThan) ||
+      (choice.NumericLessThanEquals &&
+        input <= choice.NumericLessThanEquals) ||
+      (choice.NumericGreaterThanEquals &&
+        input >= choice.NumericGreaterThanEquals) ||
+      (choice.BooleanEquals && input === choice.BooleanEquals) ||
+      (choice.BooleanEqualsPath
+        && input === jsonpath.value(data, choice.BooleanEqualsPath)) ||
+      (choice.StringEqualsPath
+        && input === jsonpath.value(data, choice.StringEqualsPath)) ||
+      (choice.NumericEqualsPath
+        && input === jsonpath.value(data, choice.NumericEqualsPath)) ||
+      (choice.NumericLessThanPath
+        && input < jsonpath.value(data, choice.NumericLessThanPath)) ||
+      (choice.NumericGreaterThanPath
+        && input > jsonpath.value(data, choice.NumericGreaterThanPath)) ||
+      (choice.NumericLessThanEqualsPath
+        && input <= jsonpath.value(data, choice.NumericLessThanEqualsPath)) ||
+      (choice.NumericGreaterThanEqualsPath
+        && input >= jsonpath.value(data, choice.NumericGreaterThanEqualsPath)) ||
+      (choice.IsPresent && input !== undefined) ||
+      (choice.IsNull && input === null) ||
+      (choice.IsBoolean && typeof input === 'boolean') ||
+      (choice.IsNumeric && typeof input === 'number') ||
+      (choice.IsString && typeof input === 'string') ||
+      (choice.IsTimestamp && typeof input === 'string' && FakeStateMachine.isTimestamp(input));
+  }
+
+  static isTimestamp(value: string) {
+    const date = new Date(value);
+
+    return !isNaN(date.getTime()) && date.toISOString() === value;
   }
 
   static inputData(state: State, data: object): object {

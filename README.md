@@ -43,10 +43,18 @@ describe('FakeStateMachine.run', () => {
 });
 ```
 
+
+## Release
+
+In order to release new version to npm, push a new commit with a message like `Release 0.2.4`.
+See the npm-publish-action step in `.github/workflows/publish.yml`.
+
+
 ## References
 
 - Amazon States Language specification <https://states-language.net/spec.html>
 - <https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html>
+
 
 ### Similar projects
 

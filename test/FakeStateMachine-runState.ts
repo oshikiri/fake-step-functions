@@ -1,4 +1,4 @@
-import { FakeStateMachine } from '../src/FakeStateMachine';
+import { FakeStateMachine, TopLevelChoiceRule } from '../src/FakeStateMachine';
 import { RunStateResult } from '../src/RunStateResult';
 import { addNumbers } from './fixtures/resources';
 
@@ -142,18 +142,137 @@ describe('FakeStateMachine#runState()', () => {
             [true, 'NextState'],
           ],
         },
+        {
+          conditionType: 'BooleanEqualsPath',
+          condition: '$.compareTo',
+          compareTo: true,
+          testCases: [
+            [false, 'DefaultState'],
+            [true, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'StringEqualsPath',
+          condition: '$.compareTo',
+          compareTo: 'abc',
+          testCases: [
+            ['def', 'DefaultState'],
+            ['abc', 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'NumericEqualsPath',
+          condition: '$.compareTo',
+          compareTo: 5,
+          testCases: [
+            [5.1, 'DefaultState'],
+            [5.0, 'NextState'],
+            [4.9, 'DefaultState'],
+          ],
+        },
+        {
+          conditionType: 'NumericLessThanPath',
+          condition: '$.compareTo',
+          compareTo: 5,
+          testCases: [
+            [5.1, 'DefaultState'],
+            [5.0, 'DefaultState'],
+            [4.9, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'NumericGreaterThanPath',
+          condition: '$.compareTo',
+          compareTo: 5,
+          testCases: [
+            [5.1, 'NextState'],
+            [5.0, 'DefaultState'],
+            [4.9, 'DefaultState'],
+          ],
+        },
+        {
+          conditionType: 'NumericLessThanEqualsPath',
+          condition: '$.compareTo',
+          compareTo: 5,
+          testCases: [
+            [5.1, 'DefaultState'],
+            [5.0, 'NextState'],
+            [4.9, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'NumericGreaterThanEqualsPath',
+          condition: '$.compareTo',
+          compareTo: 5,
+          testCases: [
+            [5.1, 'NextState'],
+            [5.0, 'NextState'],
+            [4.9, 'DefaultState'],
+          ],
+        },
+        {
+          conditionType: 'IsPresent',
+          condition: true,
+          testCases: [
+            [undefined, 'DefaultState'],
+            [null, 'NextState'],
+            [0, 'NextState'],
+            ['abc', 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'IsNull',
+          condition: true,
+          testCases: [
+            [5, 'DefaultState'],
+            [null, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'IsBoolean',
+          condition: true,
+          testCases: [
+            [null, 'DefaultState'],
+            [false, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'IsNumeric',
+          condition: true,
+          testCases: [
+            ['abc', 'DefaultState'],
+            [5, 'NextState'],
+            [5.1, 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'IsString',
+          condition: true,
+          testCases: [
+            [5.1, 'DefaultState'],
+            ['abc', 'NextState'],
+          ],
+        },
+        {
+          conditionType: 'IsTimestamp',
+          condition: true,
+          testCases: [
+            ['abc', 'DefaultState'],
+            ['2006-01-02T15:04:05.000Z', 'NextState'],
+          ],
+        },
       ];
 
-      conditions.forEach(({ conditionType, condition, testCases }) => {
+      conditions.forEach(({ conditionType, condition, compareTo, testCases }) => {
         describe(`with ${conditionType}`, () => {
           testCases.forEach((testCaseRow) => {
             const [inputValue, expectedNextStateName] = testCaseRow;
             describe(`when condition=${condition} and input=${inputValue}`, () => {
-              const choice: any = {
+              const choice: TopLevelChoiceRule = {
                 Variable: '$.condition',
+                [conditionType]: condition,
                 Next: 'NextState',
               };
-              choice[conditionType] = condition;
               const definition = {
                 States: {
                   Choices: {
@@ -168,12 +287,12 @@ describe('FakeStateMachine#runState()', () => {
                 const fakeStateMachine = new FakeStateMachine(definition, {});
                 expect(
                   await fakeStateMachine.runState(
-                    { condition: inputValue },
+                    { condition: inputValue, compareTo },
                     'Choices'
                   )
                 ).toEqual(
                   new RunStateResult(
-                    { condition: inputValue },
+                    { condition: inputValue, compareTo },
                     'Choice',
                     expectedNextStateName,
                     false
@@ -184,14 +303,228 @@ describe('FakeStateMachine#runState()', () => {
           });
         });
       });
+
       describe('with And', () => {
-        test.todo('pending');
+        const choice: TopLevelChoiceRule = {
+          And: [
+            {
+              Variable: '$.condition',
+              NumericLessThan: 5,
+            },
+            {
+              Variable: '$.condition',
+              NumericGreaterThan: 4,
+            },
+          ],
+          Next: 'NextState',
+        };
+
+        const definition = {
+          States: {
+            Choices: {
+              Type: 'Choice',
+              Choices: [choice],
+              Default: 'DefaultState',
+            },
+          },
+        };
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 4.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 4.5 },
+              'Choice',
+              'NextState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be DefaultState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 5.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 5.5 },
+              'Choice',
+              'DefaultState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be DefaultState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 0 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 0 },
+              'Choice',
+              'DefaultState',
+              false
+            )
+          );
+        });
       });
       describe('with Or', () => {
-        test.todo('pending');
+        const choice: TopLevelChoiceRule = {
+          Or: [
+            {
+              Variable: '$.condition',
+              NumericLessThan: 4,
+            },
+            {
+              Variable: '$.condition',
+              NumericGreaterThan: 5,
+            },
+          ],
+          Next: 'NextState',
+        };
+
+        const definition = {
+          States: {
+            Choices: {
+              Type: 'Choice',
+              Choices: [choice],
+              Default: 'DefaultState',
+            },
+          },
+        };
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 4.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 4.5 },
+              'Choice',
+              'DefaultState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 5.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 5.5 },
+              'Choice',
+              'NextState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 0 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 0 },
+              'Choice',
+              'NextState',
+              false
+            )
+          );
+        });
       });
       describe('with Not', () => {
-        test.todo('pending');
+        const choice: TopLevelChoiceRule = {
+          Not: {
+            Variable: '$.condition',
+            NumericLessThan: 5,
+          },
+          Next: 'NextState',
+        };
+
+        const definition = {
+          States: {
+            Choices: {
+              Type: 'Choice',
+              Choices: [choice],
+              Default: 'DefaultState',
+            },
+          },
+        };
+
+        test(`the next state should be DefaultState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 4.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 4.5 },
+              'Choice',
+              'DefaultState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 5.5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 5.5 },
+              'Choice',
+              'NextState',
+              false
+            )
+          );
+        });
+
+        test(`the next state should be NextState`, async () => {
+          const fakeStateMachine = new FakeStateMachine(definition, {});
+          expect(
+            await fakeStateMachine.runState(
+              { condition: 5 },
+              'Choices'
+            )
+          ).toEqual(
+            new RunStateResult(
+              { condition: 5 },
+              'Choice',
+              'NextState',
+              false
+            )
+          );
+        });
       });
     });
     describe('when Choices contains more than two element', () => {
@@ -573,7 +906,12 @@ describe('FakeStateMachine#runState()', () => {
           { a: 2, b: { c: { val2: 4 } } },
           'Target'
         );
-        expect(input).toEqual({ input: { val1: 3, val2: 4 } });
+        expect(input).toEqual({
+          input: { val1: 3, val2: 4 },
+          arrayInput: [
+            { val1: 3, val2: 4 },
+            { val1: 4, val2: 3 },
+          ] });
         expect(actual.data).toEqual({
           a: 2,
           b: {

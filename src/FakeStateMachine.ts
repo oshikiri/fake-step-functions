@@ -189,13 +189,15 @@ export class FakeStateMachine {
     }
 
     if (choice.Or) {
-      return choice.Or
-        .some((subChoice: any) => FakeStateMachine.isRightChoice(subChoice, data));
+      return choice.Or.some((subChoice: any) =>
+        FakeStateMachine.isRightChoice(subChoice, data)
+      );
     }
 
     if (choice.And) {
-      return choice.And
-        .every((subChoice: any) => FakeStateMachine.isRightChoice(subChoice, data));
+      return choice.And.every((subChoice: any) =>
+        FakeStateMachine.isRightChoice(subChoice, data)
+      );
     }
 
     return FakeStateMachine.compareChoice(choice as BasicChoiceRule, data);
@@ -204,35 +206,38 @@ export class FakeStateMachine {
   static compareChoice(choice: BasicChoiceRule, data: any) {
     const input = jsonpath.value(data, choice.Variable);
 
-    return (choice.StringEquals && input === choice.StringEquals) ||
+    return (
+      (choice.StringEquals && input === choice.StringEquals) ||
       (choice.NumericEquals && input === choice.NumericEquals) ||
       (choice.NumericLessThan && input < choice.NumericLessThan) ||
       (choice.NumericGreaterThan && input > choice.NumericGreaterThan) ||
-      (choice.NumericLessThanEquals &&
-        input <= choice.NumericLessThanEquals) ||
+      (choice.NumericLessThanEquals && input <= choice.NumericLessThanEquals) ||
       (choice.NumericGreaterThanEquals &&
         input >= choice.NumericGreaterThanEquals) ||
       (choice.BooleanEquals && input === choice.BooleanEquals) ||
-      (choice.BooleanEqualsPath
-        && input === jsonpath.value(data, choice.BooleanEqualsPath)) ||
-      (choice.StringEqualsPath
-        && input === jsonpath.value(data, choice.StringEqualsPath)) ||
-      (choice.NumericEqualsPath
-        && input === jsonpath.value(data, choice.NumericEqualsPath)) ||
-      (choice.NumericLessThanPath
-        && input < jsonpath.value(data, choice.NumericLessThanPath)) ||
-      (choice.NumericGreaterThanPath
-        && input > jsonpath.value(data, choice.NumericGreaterThanPath)) ||
-      (choice.NumericLessThanEqualsPath
-        && input <= jsonpath.value(data, choice.NumericLessThanEqualsPath)) ||
-      (choice.NumericGreaterThanEqualsPath
-        && input >= jsonpath.value(data, choice.NumericGreaterThanEqualsPath)) ||
+      (choice.BooleanEqualsPath &&
+        input === jsonpath.value(data, choice.BooleanEqualsPath)) ||
+      (choice.StringEqualsPath &&
+        input === jsonpath.value(data, choice.StringEqualsPath)) ||
+      (choice.NumericEqualsPath &&
+        input === jsonpath.value(data, choice.NumericEqualsPath)) ||
+      (choice.NumericLessThanPath &&
+        input < jsonpath.value(data, choice.NumericLessThanPath)) ||
+      (choice.NumericGreaterThanPath &&
+        input > jsonpath.value(data, choice.NumericGreaterThanPath)) ||
+      (choice.NumericLessThanEqualsPath &&
+        input <= jsonpath.value(data, choice.NumericLessThanEqualsPath)) ||
+      (choice.NumericGreaterThanEqualsPath &&
+        input >= jsonpath.value(data, choice.NumericGreaterThanEqualsPath)) ||
       (choice.IsPresent && input !== undefined) ||
       (choice.IsNull && input === null) ||
       (choice.IsBoolean && typeof input === 'boolean') ||
       (choice.IsNumeric && typeof input === 'number') ||
       (choice.IsString && typeof input === 'string') ||
-      (choice.IsTimestamp && typeof input === 'string' && FakeStateMachine.isTimestamp(input));
+      (choice.IsTimestamp &&
+        typeof input === 'string' &&
+        FakeStateMachine.isTimestamp(input))
+    );
   }
 
   static isTimestamp(value: string) {
@@ -267,10 +272,8 @@ export class FakeStateMachine {
   }
 
   static resolveParameters(rawParameters: any, data: object): object {
-    const resolvedParameters: any = Array.isArray(rawParameters)
-      ? []
-      : {};
-  
+    const resolvedParameters: any = Array.isArray(rawParameters) ? [] : {};
+
     for (let key of Object.keys(rawParameters)) {
       const rawValue = rawParameters[key];
       if (key.endsWith('.$')) {

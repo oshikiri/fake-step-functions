@@ -17,6 +17,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
+    "prebuild": "prettier --check {src,test}/**/*.ts test/**/*.json",
     "build": "tsc",
     "format": "prettier --write {src,test}/**/*.ts test/**/*.json"
   },

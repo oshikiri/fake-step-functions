@@ -263,46 +263,48 @@ describe('FakeStateMachine#runState()', () => {
         },
       ];
 
-      conditions.forEach(({ conditionType, condition, compareTo, testCases }) => {
-        describe(`with ${conditionType}`, () => {
-          testCases.forEach((testCaseRow) => {
-            const [inputValue, expectedNextStateName] = testCaseRow;
-            describe(`when condition=${condition} and input=${inputValue}`, () => {
-              const choice: TopLevelChoiceRule = {
-                Variable: '$.condition',
-                [conditionType]: condition,
-                Next: 'NextState',
-              };
-              const definition = {
-                States: {
-                  Choices: {
-                    Type: 'Choice',
-                    Choices: [choice],
-                    Default: 'DefaultState',
+      conditions.forEach(
+        ({ conditionType, condition, compareTo, testCases }) => {
+          describe(`with ${conditionType}`, () => {
+            testCases.forEach((testCaseRow) => {
+              const [inputValue, expectedNextStateName] = testCaseRow;
+              describe(`when condition=${condition} and input=${inputValue}`, () => {
+                const choice: TopLevelChoiceRule = {
+                  Variable: '$.condition',
+                  [conditionType]: condition,
+                  Next: 'NextState',
+                };
+                const definition = {
+                  States: {
+                    Choices: {
+                      Type: 'Choice',
+                      Choices: [choice],
+                      Default: 'DefaultState',
+                    },
                   },
-                },
-              };
+                };
 
-              test(`the next state should be ${expectedNextStateName}`, async () => {
-                const fakeStateMachine = new FakeStateMachine(definition, {});
-                expect(
-                  await fakeStateMachine.runState(
-                    { condition: inputValue, compareTo },
-                    'Choices'
-                  )
-                ).toEqual(
-                  new RunStateResult(
-                    { condition: inputValue, compareTo },
-                    'Choice',
-                    expectedNextStateName,
-                    false
-                  )
-                );
+                test(`the next state should be ${expectedNextStateName}`, async () => {
+                  const fakeStateMachine = new FakeStateMachine(definition, {});
+                  expect(
+                    await fakeStateMachine.runState(
+                      { condition: inputValue, compareTo },
+                      'Choices'
+                    )
+                  ).toEqual(
+                    new RunStateResult(
+                      { condition: inputValue, compareTo },
+                      'Choice',
+                      expectedNextStateName,
+                      false
+                    )
+                  );
+                });
               });
             });
           });
-        });
-      });
+        }
+      );
 
       describe('with And', () => {
         const choice: TopLevelChoiceRule = {
@@ -332,27 +334,16 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 4.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
           ).toEqual(
-            new RunStateResult(
-              { condition: 4.5 },
-              'Choice',
-              'NextState',
-              false
-            )
+            new RunStateResult({ condition: 4.5 }, 'Choice', 'NextState', false)
           );
         });
 
         test(`the next state should be DefaultState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 5.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
           ).toEqual(
             new RunStateResult(
               { condition: 5.5 },
@@ -366,10 +357,7 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be DefaultState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 0 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 0 }, 'Choices')
           ).toEqual(
             new RunStateResult(
               { condition: 0 },
@@ -408,10 +396,7 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 4.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
           ).toEqual(
             new RunStateResult(
               { condition: 4.5 },
@@ -425,34 +410,18 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 5.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
           ).toEqual(
-            new RunStateResult(
-              { condition: 5.5 },
-              'Choice',
-              'NextState',
-              false
-            )
+            new RunStateResult({ condition: 5.5 }, 'Choice', 'NextState', false)
           );
         });
 
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 0 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 0 }, 'Choices')
           ).toEqual(
-            new RunStateResult(
-              { condition: 0 },
-              'Choice',
-              'NextState',
-              false
-            )
+            new RunStateResult({ condition: 0 }, 'Choice', 'NextState', false)
           );
         });
       });
@@ -478,10 +447,7 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be DefaultState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 4.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
           ).toEqual(
             new RunStateResult(
               { condition: 4.5 },
@@ -495,34 +461,18 @@ describe('FakeStateMachine#runState()', () => {
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 5.5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
           ).toEqual(
-            new RunStateResult(
-              { condition: 5.5 },
-              'Choice',
-              'NextState',
-              false
-            )
+            new RunStateResult({ condition: 5.5 }, 'Choice', 'NextState', false)
           );
         });
 
         test(`the next state should be NextState`, async () => {
           const fakeStateMachine = new FakeStateMachine(definition, {});
           expect(
-            await fakeStateMachine.runState(
-              { condition: 5 },
-              'Choices'
-            )
+            await fakeStateMachine.runState({ condition: 5 }, 'Choices')
           ).toEqual(
-            new RunStateResult(
-              { condition: 5 },
-              'Choice',
-              'NextState',
-              false
-            )
+            new RunStateResult({ condition: 5 }, 'Choice', 'NextState', false)
           );
         });
       });
@@ -713,10 +663,9 @@ describe('FakeStateMachine#runState()', () => {
   describe('when the state has `"Type": "Task"`', () => {
     const fakeResources = {
       'arn:aws:lambda:us-east-1:123456789012:function:Add': addNumbers,
-      'arn:aws:lambda:us-east-1:123456789012:function:AddAsync': async (numbers: {
-        val1: number;
-        val2: number;
-      }) => numbers.val1 + numbers.val2,
+      'arn:aws:lambda:us-east-1:123456789012:function:AddAsync':
+        async (numbers: { val1: number; val2: number }) =>
+          numbers.val1 + numbers.val2,
       'arn:aws:lambda:us-east-1:123456789012:function:Double': (n: number) =>
         2 * n,
       'arn:aws:lambda:us-east-1:123456789012:function:Identity': (x: any) => x,
@@ -911,7 +860,8 @@ describe('FakeStateMachine#runState()', () => {
           arrayInput: [
             { val1: 3, val2: 4 },
             { val1: 4, val2: 3 },
-          ] });
+          ],
+        });
         expect(actual.data).toEqual({
           a: 2,
           b: {

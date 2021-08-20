@@ -8,13 +8,16 @@
           "val1": 3,
           "val2.$": "$.b.c.val2"
         },
-        "arrayInput": [{
-          "val1": 3,
-          "val2.$": "$.b.c.val2"
-        },{
-          "val1.$": "$.b.c.val2",
-          "val2": 3
-        }] 
+        "arrayInput": [
+          {
+            "val1": 3,
+            "val2.$": "$.b.c.val2"
+          },
+          {
+            "val1.$": "$.b.c.val2",
+            "val2": 3
+          }
+        ]
       },
       "ResultPath": "$.result",
       "Type": "Task",

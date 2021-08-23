@@ -1,4 +1,4 @@
-import { FakeStateMachine, TopLevelChoiceRule } from '../src/FakeStateMachine';
+import { FakeStateMachine } from '../src/FakeStateMachine';
 import { RunStateResult } from '../src/RunStateResult';
 import { addNumbers } from './fixtures/resources';
 
@@ -90,234 +90,12 @@ describe('FakeStateMachine#runState()', () => {
   });
   describe('when the state has `"Type": "Choice"`', () => {
     describe('when Choices contains only one element', () => {
-      const conditions = [
-        {
-          conditionType: 'StringEquals',
-          condition: 'abc',
-          testCases: [
-            ['ab', 'DefaultState'],
-            ['abc', 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'NumericEquals',
-          condition: 5,
-          testCases: [
-            [5.0, 'NextState'],
-            [5.1, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'NumericLessThan',
-          condition: 5,
-          testCases: [
-            [4.9, 'NextState'],
-            [5.0, 'DefaultState'],
-            [5.1, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'NumericLessThanEquals',
-          condition: 5,
-          testCases: [
-            [4.9, 'NextState'],
-            [5.0, 'NextState'],
-            [5.1, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'NumericGreaterThan',
-          condition: 5,
-          testCases: [
-            [4.9, 'DefaultState'],
-            [5.0, 'DefaultState'],
-            [5.1, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'BooleanEquals',
-          condition: true,
-          testCases: [
-            [false, 'DefaultState'],
-            [true, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'BooleanEqualsPath',
-          condition: '$.compareTo',
-          compareTo: true,
-          testCases: [
-            [false, 'DefaultState'],
-            [true, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'StringEqualsPath',
-          condition: '$.compareTo',
-          compareTo: 'abc',
-          testCases: [
-            ['def', 'DefaultState'],
-            ['abc', 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'NumericEqualsPath',
-          condition: '$.compareTo',
-          compareTo: 5,
-          testCases: [
-            [5.1, 'DefaultState'],
-            [5.0, 'NextState'],
-            [4.9, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'NumericLessThanPath',
-          condition: '$.compareTo',
-          compareTo: 5,
-          testCases: [
-            [5.1, 'DefaultState'],
-            [5.0, 'DefaultState'],
-            [4.9, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'NumericGreaterThanPath',
-          condition: '$.compareTo',
-          compareTo: 5,
-          testCases: [
-            [5.1, 'NextState'],
-            [5.0, 'DefaultState'],
-            [4.9, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'NumericLessThanEqualsPath',
-          condition: '$.compareTo',
-          compareTo: 5,
-          testCases: [
-            [5.1, 'DefaultState'],
-            [5.0, 'NextState'],
-            [4.9, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'NumericGreaterThanEqualsPath',
-          condition: '$.compareTo',
-          compareTo: 5,
-          testCases: [
-            [5.1, 'NextState'],
-            [5.0, 'NextState'],
-            [4.9, 'DefaultState'],
-          ],
-        },
-        {
-          conditionType: 'IsPresent',
-          condition: true,
-          testCases: [
-            [undefined, 'DefaultState'],
-            [null, 'NextState'],
-            [0, 'NextState'],
-            ['abc', 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'IsNull',
-          condition: true,
-          testCases: [
-            [5, 'DefaultState'],
-            [null, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'IsBoolean',
-          condition: true,
-          testCases: [
-            [null, 'DefaultState'],
-            [false, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'IsNumeric',
-          condition: true,
-          testCases: [
-            ['abc', 'DefaultState'],
-            [5, 'NextState'],
-            [5.1, 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'IsString',
-          condition: true,
-          testCases: [
-            [5.1, 'DefaultState'],
-            ['abc', 'NextState'],
-          ],
-        },
-        {
-          conditionType: 'IsTimestamp',
-          condition: true,
-          testCases: [
-            ['abc', 'DefaultState'],
-            ['2006-01-02T15:04:05.000Z', 'NextState'],
-          ],
-        },
-      ];
+      let fakeStateMachine: FakeStateMachine;
 
-      conditions.forEach(
-        ({ conditionType, condition, compareTo, testCases }) => {
-          describe(`with ${conditionType}`, () => {
-            testCases.forEach((testCaseRow) => {
-              const [inputValue, expectedNextStateName] = testCaseRow;
-              describe(`when condition=${condition} and input=${inputValue}`, () => {
-                const choice: TopLevelChoiceRule = {
-                  Variable: '$.condition',
-                  [conditionType]: condition,
-                  Next: 'NextState',
-                };
-                const definition = {
-                  States: {
-                    Choices: {
-                      Type: 'Choice',
-                      Choices: [choice],
-                      Default: 'DefaultState',
-                    },
-                  },
-                };
-
-                test(`the next state should be ${expectedNextStateName}`, async () => {
-                  const fakeStateMachine = new FakeStateMachine(definition, {});
-                  expect(
-                    await fakeStateMachine.runState(
-                      { condition: inputValue, compareTo },
-                      'Choices'
-                    )
-                  ).toEqual(
-                    new RunStateResult(
-                      { condition: inputValue, compareTo },
-                      'Choice',
-                      expectedNextStateName,
-                      false
-                    )
-                  );
-                });
-              });
-            });
-          });
-        }
-      );
-
-      describe('with And', () => {
-        const choice: TopLevelChoiceRule = {
-          And: [
-            {
-              Variable: '$.condition',
-              NumericLessThan: 5,
-            },
-            {
-              Variable: '$.condition',
-              NumericGreaterThan: 4,
-            },
-          ],
+      beforeEach(() => {
+        const choice = {
+          Variable: '$.condition',
+          BooleanEquals: true,
           Next: 'NextState',
         };
 
@@ -331,155 +109,53 @@ describe('FakeStateMachine#runState()', () => {
           },
         };
 
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult({ condition: 4.5 }, 'Choice', 'NextState', false)
-          );
-        });
-
-        test(`the next state should be DefaultState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult(
-              { condition: 5.5 },
-              'Choice',
-              'DefaultState',
-              false
-            )
-          );
-        });
-
-        test(`the next state should be DefaultState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 0 }, 'Choices')
-          ).toEqual(
-            new RunStateResult(
-              { condition: 0 },
-              'Choice',
-              'DefaultState',
-              false
-            )
-          );
-        });
+        fakeStateMachine = new FakeStateMachine(definition, {});
       });
-      describe('with Or', () => {
-        const choice: TopLevelChoiceRule = {
-          Or: [
+
+      test('should select next state if condition is met', async () => {
+        expect(
+          await fakeStateMachine.runState(
             {
-              Variable: '$.condition',
-              NumericLessThan: 4,
+              condition: true,
             },
+            'Choices'
+          )
+        ).toEqual(
+          new RunStateResult(
             {
-              Variable: '$.condition',
-              NumericGreaterThan: 5,
+              condition: true,
             },
-          ],
-          Next: 'NextState',
-        };
-
-        const definition = {
-          States: {
-            Choices: {
-              Type: 'Choice',
-              Choices: [choice],
-              Default: 'DefaultState',
-            },
-          },
-        };
-
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult(
-              { condition: 4.5 },
-              'Choice',
-              'DefaultState',
-              false
-            )
-          );
-        });
-
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult({ condition: 5.5 }, 'Choice', 'NextState', false)
-          );
-        });
-
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 0 }, 'Choices')
-          ).toEqual(
-            new RunStateResult({ condition: 0 }, 'Choice', 'NextState', false)
-          );
-        });
+            'Choice',
+            'NextState',
+            false
+          )
+        );
       });
-      describe('with Not', () => {
-        const choice: TopLevelChoiceRule = {
-          Not: {
-            Variable: '$.condition',
-            NumericLessThan: 5,
-          },
-          Next: 'NextState',
-        };
 
-        const definition = {
-          States: {
-            Choices: {
-              Type: 'Choice',
-              Choices: [choice],
-              Default: 'DefaultState',
+      test("should select default state if condition isn't met", async () => {
+        expect(
+          await fakeStateMachine.runState(
+            {
+              condition: false,
             },
-          },
-        };
-
-        test(`the next state should be DefaultState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 4.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult(
-              { condition: 4.5 },
-              'Choice',
-              'DefaultState',
-              false
-            )
-          );
-        });
-
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 5.5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult({ condition: 5.5 }, 'Choice', 'NextState', false)
-          );
-        });
-
-        test(`the next state should be NextState`, async () => {
-          const fakeStateMachine = new FakeStateMachine(definition, {});
-          expect(
-            await fakeStateMachine.runState({ condition: 5 }, 'Choices')
-          ).toEqual(
-            new RunStateResult({ condition: 5 }, 'Choice', 'NextState', false)
-          );
-        });
+            'Choices'
+          )
+        ).toEqual(
+          new RunStateResult(
+            {
+              condition: false,
+            },
+            'Choice',
+            'DefaultState',
+            false
+          )
+        );
       });
     });
-    describe('when Choices contains more than two element', () => {
+
+    describe('when Choices contains more than one element', () => {
       test('should select the expected state as a next state', async () => {
-        const definition = require('./fixtures/definitions/choice-more-than-two-choices.json');
+        const definition = require('./fixtures/definitions/choice-more-than-one-choice.json');
         const fakeStateMachine = new FakeStateMachine(definition, {});
         expect(
           await fakeStateMachine.runState(

@@ -49,6 +49,7 @@ describe('FakeStateMachine#run()', () => {
       );
     });
   });
+
   describe('when the state machine has two states', () => {
     test('should return the result successfully', async () => {
       const definition = require('./fixtures/definitions/two-states.json');
@@ -115,6 +116,30 @@ describe('FakeStateMachine#run()', () => {
           {
             a1: { b: 1 },
             a2: { b: 2 },
+          },
+          'Succeed',
+          null,
+          true
+        )
+      );
+    });
+  });
+
+  describe('when Pass state has undefined ResultPath', () => {
+    test('should not throw an Error', async () => {
+      const definition = require('./fixtures/definitions/pass-state-undefined-resultpath.json');
+      const fakeStateMachine = new FakeStateMachine(definition, {});
+
+      expect(
+        await fakeStateMachine.run({
+          changed: "TBD",
+          unchanged: "unchanged"
+        })
+      ).toEqual(
+        new RunStateResult(
+          {
+            changed: "changed by pass 0",
+            unchanged: "unchanged"
           },
           'Succeed',
           null,

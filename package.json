@@ -1,6 +1,6 @@
 {
   "name": "fake-step-functions",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Takamasa Oshikiri <mail@oshikiri.org>",
   "repository": {
     "type": "git",

@@ -96,7 +96,12 @@ export class FakeStateMachine {
       }
       case 'Pass': {
         const newValue = FakeStateMachine.runStatePass(state, data);
-        jsonpath.value(data, state.ResultPath, newValue);
+
+        if (state.ResultPath === undefined) {
+          Object.assign(data, newValue);
+        } else {
+          jsonpath.value(data, state.ResultPath, newValue);
+        }
         break;
       }
       case 'Succeed':

@@ -1,0 +1,44 @@
+{
+  "Comment": "A very complicated workflow",
+  "StartAt": "Step1",
+  "States": {
+    "Step1": {
+      "Type": "Pass",
+      "Next": "Step2",
+      "Result": {
+        "Step1": "hello"
+      }
+    },
+    "Step2": {
+      "Type": "Pass",
+      "Next": "Choice3"
+    },
+    "Choice3": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Step1",
+          "StringEquals": "world",
+          "Next": "NonExecutingRule"
+        },
+        {
+          "Variable": "$.Step1",
+          "StringEquals": "hello",
+          "Next": "Rule2"
+        }
+      ],
+      "Default": "NonExecutingRule"
+    },
+    "NonExecutingRule": {
+      "Type": "Pass",
+      "End": true
+    },
+    "Rule2": {
+      "Type": "Pass",
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

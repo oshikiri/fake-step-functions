@@ -148,4 +148,36 @@ describe('FakeStateMachine#run()', () => {
       );
     });
   });
+
+  describe('should have execution path', () => {
+    const definition = require('./fixtures/definitions/execution-path-multiple.json');
+
+    test('execution path should be valid', async () => {
+      const fakeStateMachine = new FakeStateMachine(definition, {});
+
+      await fakeStateMachine.run({});
+
+      expect(fakeStateMachine.executionPath).toEqual([
+        'Step1',
+        'Step2',
+        'Choice3',
+        'Rule2',
+        'Success',
+      ]);
+    });
+
+    test('execution path should be invalid', async () => {
+      const fakeStateMachine = new FakeStateMachine(definition, {});
+
+      await fakeStateMachine.run({});
+
+      expect(fakeStateMachine.executionPath).not.toEqual([
+        'Step1',
+        'Step2',
+        'Choice3',
+        'NonExecutingRule',
+        'Success',
+      ]);
+    });
+  });
 });

@@ -181,6 +181,30 @@ describe('FakeStateMachine#runState()', () => {
   });
 
   describe('when the state has `"Type": "Pass"`', () => {
+    describe('when nor Result nor ResultPath are provided', () => {
+      test('should copy its input through to its output', async () => {
+        // https://github.com/oshikiri/fake-step-functions/pull/25
+        const definition = require('./fixtures/definitions/pass-without-result-and-resultpath.json');
+        const fakeStateMachine = new FakeStateMachine(definition, {});
+        expect(
+          await fakeStateMachine.runState(
+            {
+              a1: 123,
+            },
+            'Target'
+          )
+        ).toEqual(
+          new RunStateResult(
+            {
+              a1: 123,
+            },
+            'Pass',
+            'NextState',
+            false
+          )
+        );
+      });
+    });
     describe('when there is an Input field', () => {
       test('should fill outputPath using Input field', async () => {
         const definition = require('./fixtures/definitions/pass-input-to-resultpath.json');

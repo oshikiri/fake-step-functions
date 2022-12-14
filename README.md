@@ -46,7 +46,7 @@ describe('FakeStateMachine.run', () => {
 
 ## Release
 
-In order to release new version to npm, push a new commit with a message like `Release 0.2.4`.
+In order to release new version to npm, create a commit using `npm version patch -m "Release %s"` and push it.
 See the npm-publish-action step in `.github/workflows/publish.yml`.
 
 

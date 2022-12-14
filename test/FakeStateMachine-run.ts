@@ -132,14 +132,14 @@ describe('FakeStateMachine#run()', () => {
 
       expect(
         await fakeStateMachine.run({
-          changed: "TBD",
-          unchanged: "unchanged"
+          changed: 'TBD',
+          unchanged: 'unchanged',
         })
       ).toEqual(
         new RunStateResult(
           {
-            changed: "changed by pass 0",
-            unchanged: "unchanged"
+            changed: 'changed by pass 0',
+            unchanged: 'unchanged',
           },
           'Succeed',
           null,

@@ -49,6 +49,7 @@ describe('FakeStateMachine#run()', () => {
       );
     });
   });
+
   describe('when the state machine has two states', () => {
     test('should return the result successfully', async () => {
       const definition = require('./fixtures/definitions/two-states.json');
@@ -121,6 +122,24 @@ describe('FakeStateMachine#run()', () => {
           true
         )
       );
+    });
+  });
+
+  describe('should have execution path', () => {
+    const definition = require('./fixtures/definitions/execution-path-multiple.json');
+
+    test('execution path should contain executed states in the order of execution', async () => {
+      const fakeStateMachine = new FakeStateMachine(definition, {});
+
+      await fakeStateMachine.run({});
+
+      expect(fakeStateMachine.executionPath).toEqual([
+        'Step1',
+        'Step2',
+        'Choice3',
+        'Rule2',
+        'Success',
+      ]);
     });
   });
 });

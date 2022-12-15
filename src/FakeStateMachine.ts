@@ -29,10 +29,12 @@ const isObject = (x: object) => typeof x === 'object' && x !== null;
 export class FakeStateMachine {
   definition: Definition;
   fakeResources: Resource;
+  executionPath: Array<string>;
 
   constructor(definition: Definition, fakeResources: Resource) {
     this.definition = definition;
     this.fakeResources = fakeResources;
+    this.executionPath = new Array();
   }
 
   async run(input: object): Promise<RunStateResult> {
@@ -75,6 +77,8 @@ export class FakeStateMachine {
     }
     const stateType = state.Type;
     let nextState = state.Next || null;
+
+    this.executionPath.push(stateName);
 
     switch (stateType) {
       case 'Task': {

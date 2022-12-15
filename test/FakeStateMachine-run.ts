@@ -125,34 +125,10 @@ describe('FakeStateMachine#run()', () => {
     });
   });
 
-  describe('when Pass state has undefined ResultPath', () => {
-    test('should not throw an Error', async () => {
-      const definition = require('./fixtures/definitions/pass-state-undefined-resultpath.json');
-      const fakeStateMachine = new FakeStateMachine(definition, {});
-
-      expect(
-        await fakeStateMachine.run({
-          changed: 'TBD',
-          unchanged: 'unchanged',
-        })
-      ).toEqual(
-        new RunStateResult(
-          {
-            changed: 'changed by pass 0',
-            unchanged: 'unchanged',
-          },
-          'Succeed',
-          null,
-          true
-        )
-      );
-    });
-  });
-
   describe('should have execution path', () => {
     const definition = require('./fixtures/definitions/execution-path-multiple.json');
 
-    test('execution path should be valid', async () => {
+    test('execution path should contain executed states in the order of execution', async () => {
       const fakeStateMachine = new FakeStateMachine(definition, {});
 
       await fakeStateMachine.run({});
@@ -166,7 +142,7 @@ describe('FakeStateMachine#run()', () => {
       ]);
     });
 
-    test('execution path should be invalid', async () => {
+    test('execution path should not match this order of execution', async () => {
       const fakeStateMachine = new FakeStateMachine(definition, {});
 
       await fakeStateMachine.run({});

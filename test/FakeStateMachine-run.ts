@@ -141,19 +141,5 @@ describe('FakeStateMachine#run()', () => {
         'Success',
       ]);
     });
-
-    test('execution path should should contain executed states but not match this order of execution', async () => {
-      const fakeStateMachine = new FakeStateMachine(definition, {});
-
-      await fakeStateMachine.run({});
-
-      expect(fakeStateMachine.executionPath).not.toEqual([
-        'Step1',
-        'Step2',
-        'Choice3',
-        'NonExecutingRule',
-        'Success',
-      ]);
-    });
   });
 });

@@ -142,7 +142,7 @@ describe('FakeStateMachine#run()', () => {
       ]);
     });
 
-    test('execution path should not match this order of execution', async () => {
+    test('execution path should should contain executed states but not match this order of execution', async () => {
       const fakeStateMachine = new FakeStateMachine(definition, {});
 
       await fakeStateMachine.run({});

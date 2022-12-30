@@ -1,7 +1,7 @@
 fake-step-functions
 =====
 
-An unit testing toolkit for Amazon States Language.
+A lightweight unit testing toolkit for Amazon States Language.
 
 [![GitHub Workflows Status](https://github.com/oshikiri/fake-step-functions/workflows/test/badge.svg)](https://github.com/oshikiri/fake-step-functions/actions)
 [![npm version](https://badge.fury.io/js/fake-step-functions.svg)](https://badge.fury.io/js/fake-step-functions)
@@ -52,11 +52,16 @@ See the npm-publish-action step in `.github/workflows/publish.yml`.
 
 ## References
 
+### Specifications
+
 - Amazon States Language specification <https://states-language.net/spec.html>
-- <https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html>
+- Amazon States Language - AWS Step Functions <https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html>
 
 
 ### Similar projects
+
+At 2022, **AWS Step Functions Local** is a primary choice to test ASL locally.
+See ["Testing Step Functions State Machines Locally"](https://docs.aws.amazon.com/step-functions/latest/dg/sfn-local.html).
 
 - [airware/stepfunctions\-local](https://github.com/airware/stepfunctions-local)
 - [wmfs/statebox](https://github.com/wmfs/statebox)

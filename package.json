@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
-    "@types/jsonpath": "^0.2.1",
+    "@types/jsonpath": "^0.2.2",
     "@types/node": "^20.8.3",
     "jest": "^27.2.5",
     "prettier": "^3.0.3",

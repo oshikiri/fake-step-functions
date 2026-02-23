@@ -23,7 +23,7 @@
   },
   "main": "./dist/index.js",
   "dependencies": {
-    "jsonpath": "^1.2.0"
+    "jsonpath": "^1.2.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
